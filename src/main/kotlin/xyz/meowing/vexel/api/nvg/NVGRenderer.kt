@@ -1,9 +1,8 @@
 @file:Suppress("UNUSED")
 
-package xyz.meowing.vexel.utils.render
+package xyz.meowing.vexel.api.nvg
 
 import com.mojang.blaze3d.systems.RenderSystem
-import net.minecraft.util.Identifier
 import org.lwjgl.nanovg.*
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL20
@@ -11,13 +10,13 @@ import org.lwjgl.opengl.GL30
 import org.lwjgl.stb.STBImage
 import org.lwjgl.system.MemoryUtil
 import xyz.meowing.knit.api.KnitClient.client
-import xyz.meowing.vexel.utils.style.Color.Companion.alpha
-import xyz.meowing.vexel.utils.style.Color.Companion.blue
-import xyz.meowing.vexel.utils.style.Color.Companion.green
-import xyz.meowing.vexel.utils.style.Color.Companion.red
-import xyz.meowing.vexel.utils.style.Font
-import xyz.meowing.vexel.utils.style.Gradient
-import xyz.meowing.vexel.utils.style.Image
+import xyz.meowing.vexel.api.style.Color.Companion.alpha
+import xyz.meowing.vexel.api.style.Color.Companion.blue
+import xyz.meowing.vexel.api.style.Color.Companion.green
+import xyz.meowing.vexel.api.style.Color.Companion.red
+import xyz.meowing.vexel.api.style.Font
+import xyz.meowing.vexel.api.style.Gradient
+import xyz.meowing.vexel.api.style.Image
 import java.awt.Color
 import java.nio.ByteBuffer
 import kotlin.math.max
@@ -27,6 +26,7 @@ import kotlin.math.round
 import net.minecraft.client.gl.GlBackend
 import net.minecraft.client.texture.GlTexture
 import com.mojang.blaze3d.opengl.GlStateManager
+import xyz.meowing.vexel.api.RenderAPI
 
 //#if MC >= 1.21.9
 //$$ import org.lwjgl.opengl.GL13
@@ -69,12 +69,10 @@ import com.mojang.blaze3d.opengl.GlStateManager
  * Modifications and additions:
  * Licensed under GPL-3.0
  */
-object NVGRenderer {
+object NVGRenderer : RenderAPI {
     private val nvgPaint = NVGPaint.malloc()
     private val nvgColor = NVGColor.malloc()
     private val nvgColor2 = NVGColor.malloc()
-
-    val defaultFont = Font("Default", client.resourceManager.getResource(Identifier.of("vexel", "font.ttf")).get().inputStream)
 
     private val fontMap = HashMap<Font, NVGFont>()
     private val fontBounds = FloatArray(4)
@@ -90,7 +88,7 @@ object NVGRenderer {
         require(vg != -1L) { "Failed to initialize NanoVG" }
     }
 
-    fun beginFrame(width: Float, height: Float) {
+    override fun beginFrame(width: Float, height: Float) {
         if (StateTracker.drawing) throw IllegalStateException("[NVGRenderer] Already drawing, but called beginFrame")
 
         //#if MC >= 1.21.9
@@ -127,7 +125,7 @@ object NVGRenderer {
         StateTracker.drawing = true
     }
 
-    fun endFrame() {
+    override fun endFrame() {
         if (!StateTracker.drawing) throw IllegalStateException("[NVGRenderer] Not drawing, but called endFrame")
         NanoVG.nvgEndFrame(vg)
 
@@ -147,30 +145,30 @@ object NVGRenderer {
         StateTracker.drawing = false
     }
 
-    fun push() = NanoVG.nvgSave(vg)
+    override fun push() = NanoVG.nvgSave(vg)
 
-    fun pop() = NanoVG.nvgRestore(vg)
+    override fun pop() = NanoVG.nvgRestore(vg)
 
-    fun scale(x: Float, y: Float) = NanoVG.nvgScale(vg, x, y)
+    override fun scale(x: Float, y: Float) = NanoVG.nvgScale(vg, x, y)
 
-    fun translate(x: Float, y: Float) = NanoVG.nvgTranslate(vg, x, y)
+    override fun translate(x: Float, y: Float) = NanoVG.nvgTranslate(vg, x, y)
 
-    fun rotate(amount: Float) = NanoVG.nvgRotate(vg, amount)
+    override fun rotate(amount: Float) = NanoVG.nvgRotate(vg, amount)
 
-    fun globalAlpha(amount: Float) = NanoVG.nvgGlobalAlpha(vg, amount.coerceIn(0f, 1f))
+    override fun globalAlpha(amount: Float) = NanoVG.nvgGlobalAlpha(vg, amount.coerceIn(0f, 1f))
 
-    fun pushScissor(x: Float, y: Float, w: Float, h: Float) {
+    override fun pushScissor(x: Float, y: Float, w: Float, h: Float) {
         scissor = Scissor(scissor, x, y, w + x, h + y)
         scissor?.applyScissor()
     }
 
-    fun popScissor() {
+    override fun popScissor() {
         NanoVG.nvgResetScissor(vg)
         scissor = scissor?.previous
         scissor?.applyScissor()
     }
 
-    fun line(x1: Float, y1: Float, x2: Float, y2: Float, thickness: Float, color: Int) {
+    override fun line(x1: Float, y1: Float, x2: Float, y2: Float, thickness: Float, color: Int) {
         NanoVG.nvgBeginPath(vg)
         NanoVG.nvgMoveTo(vg, x1, y1)
         NanoVG.nvgLineTo(vg, x2, y2)
@@ -180,7 +178,7 @@ object NVGRenderer {
         NanoVG.nvgStroke(vg)
     }
 
-    fun drawHalfRoundedRect(x: Float, y: Float, w: Float, h: Float, color: Int, radius: Float, roundTop: Boolean) {
+    override fun rect(x: Float, y: Float, w: Float, h: Float, color: Int, radius: Float, roundTop: Boolean) {
         NanoVG.nvgBeginPath(vg)
 
         if (roundTop) {
@@ -207,7 +205,7 @@ object NVGRenderer {
         NanoVG.nvgFill(vg)
     }
 
-    fun rect(x: Float, y: Float, w: Float, h: Float, color: Int, radius: Float) {
+    override fun rect(x: Float, y: Float, w: Float, h: Float, color: Int, radius: Float) {
         NanoVG.nvgBeginPath(vg)
         NanoVG.nvgRoundedRect(vg, x, y, w, h + .5f, radius)
         color(color)
@@ -215,7 +213,7 @@ object NVGRenderer {
         NanoVG.nvgFill(vg)
     }
 
-    fun rect(x: Float, y: Float, w: Float, h: Float, color: Int) {
+    override fun rect(x: Float, y: Float, w: Float, h: Float, color: Int) {
         NanoVG.nvgBeginPath(vg)
         NanoVG.nvgRect(vg, x, y, w, h + .5f)
         color(color)
@@ -223,7 +221,7 @@ object NVGRenderer {
         NanoVG.nvgFill(vg)
     }
 
-    fun rect(x: Float, y: Float, w: Float, h: Float, color: Int, topRight: Float, topLeft: Float, bottomRight: Float, bottomLeft: Float) {
+    override fun rect(x: Float, y: Float, w: Float, h: Float, color: Int, topRight: Float, topLeft: Float, bottomRight: Float, bottomLeft: Float) {
         NanoVG.nvgBeginPath(vg)
         NanoVG.nvgRoundedRectVarying(vg, round(x), round(y), round(w), round(h), topRight, topLeft, bottomRight, bottomLeft)
         color(color)
@@ -231,7 +229,7 @@ object NVGRenderer {
         NanoVG.nvgFill(vg)
     }
 
-    fun hollowRect(x: Float, y: Float, w: Float, h: Float, thickness: Float, color: Int, radius: Float) {
+    override fun hollowRect(x: Float, y: Float, w: Float, h: Float, thickness: Float, color: Int, radius: Float) {
         NanoVG.nvgBeginPath(vg)
         NanoVG.nvgRoundedRect(vg, x, y, w, h, radius)
         NanoVG.nvgStrokeWidth(vg, thickness)
@@ -241,7 +239,7 @@ object NVGRenderer {
         NanoVG.nvgStroke(vg)
     }
 
-    fun hollowGradientRect(
+    override fun hollowGradientRect(
         x: Float,
         y: Float,
         w: Float,
@@ -262,7 +260,7 @@ object NVGRenderer {
         NanoVG.nvgStroke(vg)
     }
 
-    fun gradientRect(
+    override fun gradientRect(
         x: Float,
         y: Float,
         w: Float,
@@ -279,7 +277,7 @@ object NVGRenderer {
         NanoVG.nvgFill(vg)
     }
 
-    fun dropShadow(x: Float, y: Float, width: Float, height: Float, blur: Float, spread: Float, shadowColor: Color, radius: Float) {
+    override fun dropShadow(x: Float, y: Float, width: Float, height: Float, blur: Float, spread: Float, shadowColor: Color, radius: Float) {
         val r = shadowColor.red.toByte()
         val g = shadowColor.green.toByte()
         val b = shadowColor.blue.toByte()
@@ -314,7 +312,7 @@ object NVGRenderer {
         NanoVG.nvgFill(vg)
     }
 
-    fun circle(x: Float, y: Float, radius: Float, color: Int) {
+    override fun circle(x: Float, y: Float, radius: Float, color: Int) {
         NanoVG.nvgBeginPath(vg)
         NanoVG.nvgCircle(vg, x, y, radius)
         color(color)
@@ -322,7 +320,7 @@ object NVGRenderer {
         NanoVG.nvgFill(vg)
     }
 
-    fun text(text: String, x: Float, y: Float, size: Float, color: Int, font: Font = defaultFont) {
+    override fun text(text: String, x: Float, y: Float, size: Float, color: Int, font: Font) {
         NanoVG.nvgFontSize(vg, size)
         NanoVG.nvgFontFaceId(vg, getFontID(font))
         color(color)
@@ -330,7 +328,7 @@ object NVGRenderer {
         NanoVG.nvgText(vg, x, y + .5f, text)
     }
 
-    fun textShadow(text: String, x: Float, y: Float, size: Float, color: Int, font: Font = defaultFont, shadowColor: Int = 0x80000000.toInt(), offsetX: Float = 1.5f, offsetY: Float = 1.5f, blur: Float = 2f) {
+    override fun shadowedText(text: String, x: Float, y: Float, size: Float, color: Int, font: Font, shadowColor: Int, offsetX: Float, offsetY: Float, blur: Float) {
         NanoVG.nvgFontFaceId(vg, getFontID(font))
         NanoVG.nvgFontSize(vg, size)
 
@@ -345,13 +343,13 @@ object NVGRenderer {
         NanoVG.nvgText(vg, x, y + .5f, text)
     }
 
-    fun textWidth(text: String, size: Float, font: Font): Float {
+    override fun textWidth(text: String, size: Float, font: Font): Float {
         NanoVG.nvgFontSize(vg, size)
         NanoVG.nvgFontFaceId(vg, getFontID(font))
         return NanoVG.nvgTextBounds(vg, 0f, 0f, text, fontBounds)
     }
 
-    fun drawWrappedString(
+    override fun wrappedText(
         text: String,
         x: Float,
         y: Float,
@@ -359,7 +357,7 @@ object NVGRenderer {
         size: Float,
         color: Int,
         font: Font,
-        lineHeight: Float = 1f
+        lineHeight: Float
     ) {
         NanoVG.nvgFontSize(vg, size)
         NanoVG.nvgFontFaceId(vg, getFontID(font))
@@ -369,12 +367,12 @@ object NVGRenderer {
         NanoVG.nvgTextBox(vg, x, y, w, text)
     }
 
-    fun wrappedTextBounds(
+    override fun textBounds(
         text: String,
         w: Float,
         size: Float,
         font: Font,
-        lineHeight: Float = 1f
+        lineHeight: Float
     ): FloatArray {
         val bounds = FloatArray(4)
         NanoVG.nvgFontSize(vg, size)
@@ -384,16 +382,7 @@ object NVGRenderer {
         return bounds // [minX, minY, maxX, maxY]
     }
 
-    fun createNVGImage(textureId: Int, textureWidth: Int, textureHeight: Int): Int =
-        NanoVGGL3.nvglCreateImageFromHandle(
-            vg,
-            textureId,
-            textureWidth,
-            textureHeight,
-            NanoVG.NVG_IMAGE_NEAREST or NanoVGGL3.NVG_IMAGE_NODELETE
-        )
-
-    fun image(image: Int, textureWidth: Int, textureHeight: Int, subX: Int, subY: Int, subW: Int, subH: Int, x: Float, y: Float, w: Float, h: Float, radius: Float) {
+    override fun image(image: Int, textureWidth: Int, textureHeight: Int, subX: Int, subY: Int, subW: Int, subH: Int, x: Float, y: Float, w: Float, h: Float, radius: Float) {
         if (image == -1) return
 
         val sx = subX.toFloat() / textureWidth
@@ -413,7 +402,7 @@ object NVGRenderer {
         NanoVG.nvgFill(vg)
     }
 
-    fun image(image: Image, x: Float, y: Float, w: Float, h: Float, radius: Float) {
+    override fun image(image: Image, x: Float, y: Float, w: Float, h: Float, radius: Float) {
         NanoVG.nvgImagePattern(vg, x, y, w, h, 0f, getImage(image), 1f, nvgPaint)
         NanoVG.nvgBeginPath(vg)
         NanoVG.nvgRoundedRect(vg, x, y, w, h + .5f, radius)
@@ -421,7 +410,7 @@ object NVGRenderer {
         NanoVG.nvgFill(vg)
     }
 
-    fun image(image: Image, x: Float, y: Float, w: Float, h: Float) {
+    override fun image(image: Image, x: Float, y: Float, w: Float, h: Float) {
         NanoVG.nvgImagePattern(vg, x, y, w, h, 0f, getImage(image), 1f, nvgPaint)
         NanoVG.nvgBeginPath(vg)
         NanoVG.nvgRect(vg, x, y, w, h + .5f)
@@ -429,7 +418,7 @@ object NVGRenderer {
         NanoVG.nvgFill(vg)
     }
 
-    fun svg(id: String, x: Float, y: Float, w: Float, h: Float, a: Float = 1f) {
+    override fun svg(id: String, x: Float, y: Float, w: Float, h: Float, a: Float) {
         val nvg = getImage(Image(id))
 
         NanoVG.nvgImagePattern(vg, x, y, w, h, 0f, nvg, a, nvgPaint)
@@ -439,7 +428,7 @@ object NVGRenderer {
         NanoVG.nvgFill(vg)
     }
 
-    fun createImage(resourcePath: String, width: Int = -1, height: Int = -1, color: Color = Color.WHITE, id: String): Image {
+    override fun createImage(resourcePath: String, width: Int, height: Int, color: Color, id: String): Image {
         val image = Image(resourcePath)
 
         if (image.isSVG) {
@@ -450,7 +439,7 @@ object NVGRenderer {
         return image
     }
 
-    fun cleanCache() {
+    override fun cleanCache() {
         val iter = images.entries.iterator()
         while (iter.hasNext()) {
             val entry = iter.next()
@@ -460,7 +449,7 @@ object NVGRenderer {
     }
 
     // lowers reference count by 1, if it reaches 0 it gets deleted from mem
-    fun deleteImage(image: Image) {
+    override fun deleteImage(image: Image) {
         val nvgImage = images[image] ?: return
         nvgImage.count--
         if (nvgImage.count == 0) {

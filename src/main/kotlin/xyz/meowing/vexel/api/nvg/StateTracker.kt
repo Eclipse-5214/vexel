@@ -1,4 +1,4 @@
-package xyz.meowing.vexel.utils.render
+package xyz.meowing.vexel.api.nvg
 
 object StateTracker {
     @JvmStatic

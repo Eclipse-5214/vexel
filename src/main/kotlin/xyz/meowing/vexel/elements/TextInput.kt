@@ -4,12 +4,12 @@ import xyz.meowing.knit.api.KnitClient.client
 import xyz.meowing.knit.api.input.KnitInputs
 import xyz.meowing.knit.api.input.KnitKeyboard
 import xyz.meowing.knit.api.input.KnitKeys
+import xyz.meowing.vexel.Vexel.renderer
 import xyz.meowing.vexel.components.core.Rectangle
 import xyz.meowing.vexel.components.core.Text
 import xyz.meowing.vexel.components.base.enums.Pos
 import xyz.meowing.vexel.components.base.enums.Size
 import xyz.meowing.vexel.components.base.VexelElement
-import xyz.meowing.vexel.utils.render.NVGRenderer
 import java.awt.Color
 import kotlin.math.max
 import kotlin.math.min
@@ -142,8 +142,8 @@ class TextInput(
         if (hasSelection && !shouldShowPlaceholder) {
             val selStartStr = value.substring(0, selectionStart)
             val selEndStr = value.substring(0, selectionEnd)
-            val x1 = NVGRenderer.textWidth(selStartStr, fontSize, NVGRenderer.defaultFont)
-            val x2 = NVGRenderer.textWidth(selEndStr, fontSize, NVGRenderer.defaultFont)
+            val x1 = renderer.textWidth(selStartStr, fontSize)
+            val x2 = renderer.textWidth(selEndStr, fontSize)
 
             selectionRectangle.setPositioning(x1, Pos.ParentPixels, 0f, Pos.ParentCenter)
             selectionRectangle.setSizing(x2-x1, Size.Pixels, fontSize, Size.Pixels)
@@ -154,7 +154,7 @@ class TextInput(
 
         caret.height = fontSize
         caret.width = 1f
-        val caretX = NVGRenderer.textWidth(value.substring(0, cursorIndex.coerceIn(0, value.length)), fontSize, NVGRenderer.defaultFont)
+        val caretX = renderer.textWidth(value.substring(0, cursorIndex.coerceIn(0, value.length)), fontSize)
         caret.setPositioning(caretX, Pos.ParentPixels, 0f, Pos.ParentCenter)
         caret.visible = isFocused && caretVisible && !shouldShowPlaceholder
 
@@ -245,7 +245,7 @@ class TextInput(
         if (absClickX <= 0) return 0
         var currentWidth = 0f
         for (i in value.indices) {
-            val charWidth = NVGRenderer.textWidth(value[i].toString(), fontSize, NVGRenderer.defaultFont)
+            val charWidth = renderer.textWidth(value[i].toString(), fontSize)
             if (absClickX < currentWidth + charWidth / 2) {
                 return i
             }
@@ -323,7 +323,7 @@ class TextInput(
             selectionAnchor = cursorIndex
 
             val contentWidth = background.width - background.padding[1] - background.padding[3]
-            val maxScroll = max(0f, NVGRenderer.textWidth(this.value, fontSize, NVGRenderer.defaultFont) - contentWidth)
+            val maxScroll = max(0f, renderer.textWidth(this.value, fontSize) - contentWidth)
             if (scrollOffset > maxScroll) {
                 scrollOffset = maxScroll
             }
@@ -428,7 +428,7 @@ class TextInput(
 
     private fun ensureCaretVisible() {
         val contentWidth = background.width - background.padding[1] - background.padding[3]
-        val caretXAbsolute = NVGRenderer.textWidth(value.substring(0, cursorIndex.coerceIn(0, value.length)), fontSize, NVGRenderer.defaultFont)
+        val caretXAbsolute = renderer.textWidth(value.substring(0, cursorIndex.coerceIn(0, value.length)), fontSize)
         val visibleTextStart = scrollOffset
         val visibleTextEnd = scrollOffset + contentWidth
 
@@ -438,9 +438,9 @@ class TextInput(
             scrollOffset = caretXAbsolute - contentWidth + 2
         }
 
-        val maxScrollPossible = max(0f, NVGRenderer.textWidth(value, fontSize, NVGRenderer.defaultFont) - contentWidth)
+        val maxScrollPossible = max(0f, renderer.textWidth(value, fontSize) - contentWidth)
         scrollOffset = scrollOffset.coerceIn(0f, maxScrollPossible)
-        if (NVGRenderer.textWidth(value, fontSize, NVGRenderer.defaultFont) <= contentWidth) {
+        if (renderer.textWidth(value, fontSize) <= contentWidth) {
             scrollOffset = 0f
         }
     }

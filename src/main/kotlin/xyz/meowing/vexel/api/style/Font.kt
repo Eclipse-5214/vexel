@@ -1,4 +1,4 @@
-package xyz.meowing.vexel.utils.style
+package xyz.meowing.vexel.api.style
 
 import java.io.FileNotFoundException
 import java.io.InputStream

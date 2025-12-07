@@ -1,11 +1,11 @@
 package xyz.meowing.vexel.components.core
 
+import xyz.meowing.vexel.Vexel.renderer
 import xyz.meowing.vexel.animations.types.EasingType
 import xyz.meowing.vexel.animations.extensions.animateFloat
 import xyz.meowing.vexel.components.base.enums.Pos
 import xyz.meowing.vexel.components.base.enums.Size
 import xyz.meowing.vexel.components.base.VexelElement
-import xyz.meowing.vexel.utils.render.NVGRenderer
 import java.awt.Color
 import java.util.UUID
 
@@ -15,7 +15,7 @@ class SvgImage(
     var startingHeight: Float = 80f,
     var color: Color = Color.WHITE
 ) : VexelElement<SvgImage>() {
-    var image = NVGRenderer.createImage(svgPath, startingWidth.toInt(), startingHeight.toInt(), color, UUID.randomUUID().toString())
+    var image = renderer.createImage(svgPath, startingWidth.toInt(), startingHeight.toInt(), color, UUID.randomUUID().toString())
     var rotation: Float = 0f
 
     init {
@@ -37,16 +37,16 @@ class SvgImage(
         val centerY = y + height / 2f
 
         if (rotation != 0f) {
-            NVGRenderer.push()
-            NVGRenderer.translate(centerX, centerY)
-            NVGRenderer.rotate(Math.toRadians(rotation.toDouble()).toFloat())
-            NVGRenderer.translate(-centerX, -centerY)
+            renderer.push()
+            renderer.translate(centerX, centerY)
+            renderer.rotate(Math.toRadians(rotation.toDouble()).toFloat())
+            renderer.translate(-centerX, -centerY)
         }
 
-        NVGRenderer.image(image, x, y, startingWidth, startingHeight)
+        renderer.image(image, x, y, startingWidth, startingHeight)
 
         if (rotation != 0f) {
-            NVGRenderer.pop()
+            renderer.pop()
         }
     }
 
@@ -58,8 +58,8 @@ class SvgImage(
     fun setSvgColor(newColor: Color) {
         if (color != newColor) {
             color = newColor
-            NVGRenderer.deleteImage(image)
-            image = NVGRenderer.createImage(svgPath, startingWidth.toInt(), startingHeight.toInt(), color, UUID.randomUUID().toString())
+            renderer.deleteImage(image)
+            image = renderer.createImage(svgPath, startingWidth.toInt(), startingHeight.toInt(), color, UUID.randomUUID().toString())
         }
     }
 }

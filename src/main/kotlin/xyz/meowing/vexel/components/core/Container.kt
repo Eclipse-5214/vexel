@@ -1,10 +1,10 @@
 package xyz.meowing.vexel.components.core
 
+import xyz.meowing.vexel.Vexel.renderer
 import xyz.meowing.vexel.core.VexelWindow
 import xyz.meowing.vexel.components.base.enums.Size
 import xyz.meowing.vexel.components.base.VexelElement
 import xyz.meowing.vexel.events.internal.MouseEvent
-import xyz.meowing.vexel.utils.render.NVGRenderer
 
 open class Container(
     var padding: FloatArray = floatArrayOf(0f, 0f, 0f, 0f),
@@ -38,7 +38,7 @@ open class Container(
         val scrollbarHeight = (viewHeight / contentHeight) * viewHeight
         val scrollbarY = y + padding[0] + (scrollOffset / contentHeight) * viewHeight
 
-        NVGRenderer.rect(scrollbarX, scrollbarY, scrollbarWidth, scrollbarHeight, scrollbarColor, scrollbarRadius)
+        renderer.rect(scrollbarX, scrollbarY, scrollbarWidth, scrollbarHeight, scrollbarColor, scrollbarRadius)
     }
 
     private fun isPointInScrollbar(mouseX: Float, mouseY: Float): Boolean {
@@ -264,21 +264,21 @@ open class Container(
             val viewWidth = width - padding[1] - padding[3]
             val viewHeight = height - padding[0] - padding[2]
 
-            NVGRenderer.push()
-            NVGRenderer.pushScissor(
+            renderer.push()
+            renderer.pushScissor(
                 contentX - scissorBufferHorizontal,
                 contentY - scissorBufferVertical,
                 viewWidth + scissorBufferHorizontal * 2,
                 viewHeight + scissorBufferVertical * 2
             )
-            NVGRenderer.translate(0f, -scrollOffset)
+            renderer.translate(0f, -scrollOffset)
         }
 
         children.forEach { it.render(mouseX, mouseY) }
 
         if (scrollable) {
-            NVGRenderer.popScissor()
-            NVGRenderer.pop()
+            renderer.popScissor()
+            renderer.pop()
         }
 
         if (showScrollbar && (isHovered || isDraggingScrollbar)) drawScrollbar()

@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import xyz.meowing.vexel.utils.render.StateTracker;
+import xyz.meowing.vexel.api.nvg.StateTracker;
 
 @Mixin(GlStateManager.class)
 public class MixinGlStateManager {

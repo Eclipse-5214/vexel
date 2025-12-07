@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xyz.meowing.knit.api.render.KnitResolution;
-import xyz.meowing.vexel.utils.render.NVGRenderer;
+import xyz.meowing.vexel.Vexel;
 import xyz.meowing.vexel.events.GuiEvent;
 
 import static xyz.meowing.vexel.Vexel.getEventBus;
@@ -25,13 +25,13 @@ public class MixinGameRenderer {
             boolean tick,
             CallbackInfo ci
     ) {
-        NVGRenderer.INSTANCE.beginFrame(KnitResolution.getWindowWidth(), KnitResolution.getWindowHeight());
+        Vexel.getRenderer().beginFrame(KnitResolution.getWindowWidth(), KnitResolution.getWindowHeight());
         if (
                 getEventBus().post(
                         new GuiEvent.Render(),
                         false
                 )
         ) ci.cancel();
-        NVGRenderer.INSTANCE.endFrame();
+        Vexel.getRenderer().endFrame();
     }
 }

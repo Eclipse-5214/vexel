@@ -4,6 +4,7 @@ package xyz.meowing.vexel.components.base
 
 import xyz.meowing.knit.api.input.KnitMouse
 import xyz.meowing.knit.api.render.KnitResolution
+import xyz.meowing.vexel.Vexel.renderer
 import xyz.meowing.vexel.animations.AnimationManager
 import xyz.meowing.vexel.core.VexelWindow
 import xyz.meowing.vexel.animations.types.EasingType
@@ -18,7 +19,6 @@ import xyz.meowing.vexel.components.core.Rectangle
 import xyz.meowing.vexel.components.core.Tooltip
 import xyz.meowing.vexel.events.internal.KeyEvent
 import xyz.meowing.vexel.events.internal.MouseEvent
-import xyz.meowing.vexel.utils.render.NVGRenderer
 
 abstract class VexelElement<T : VexelElement<T>>(
     var widthType: Size = Size.Pixels,
@@ -177,9 +177,9 @@ abstract class VexelElement<T : VexelElement<T>>(
 
         val color = if (isFocused) 0xFFFFA500.toInt() else if (isHovered) 0xFFFFFF00.toInt() else 0xFF00FFFF.toInt()
 
-        NVGRenderer.push()
-        NVGRenderer.hollowRect(x, y, width, height, 1f, color, 0f)
-        NVGRenderer.pop()
+        renderer.push()
+        renderer.hollowRect(x, y, width, height, 1f, color, 0f)
+        renderer.pop()
     }
 
     open fun destroy() {
@@ -195,12 +195,12 @@ abstract class VexelElement<T : VexelElement<T>>(
     }
 
     fun drawAsRoot() {
-        NVGRenderer.beginFrame(screenWidth.toFloat(), screenHeight.toFloat())
-        NVGRenderer.push()
+        renderer.beginFrame(screenWidth.toFloat(), screenHeight.toFloat())
+        renderer.push()
         render(KnitMouse.Raw.x.toFloat(), KnitMouse.Raw.y.toFloat())
         AnimationManager.update()
-        NVGRenderer.pop()
-        NVGRenderer.endFrame()
+        renderer.pop()
+        renderer.endFrame()
     }
 
     fun findFirstVisibleParent(): VexelElement<*>? {

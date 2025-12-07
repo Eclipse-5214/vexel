@@ -1,5 +1,7 @@
 package xyz.meowing.vexel.animations
 
+import xyz.meowing.vexel.animations.types.AnimationType
+
 object AnimationManager {
     private val activeAnimations = mutableListOf<Animation<*>>()
 

@@ -1,9 +1,9 @@
 package xyz.meowing.vexel.components.core
 
-import xyz.meowing.vexel.animations.EasingType
-import xyz.meowing.vexel.animations.animateFloat
-import xyz.meowing.vexel.components.base.Pos
-import xyz.meowing.vexel.components.base.Size
+import xyz.meowing.vexel.animations.types.EasingType
+import xyz.meowing.vexel.animations.extensions.animateFloat
+import xyz.meowing.vexel.components.base.enums.Pos
+import xyz.meowing.vexel.components.base.enums.Size
 import xyz.meowing.vexel.components.base.VexelElement
 import xyz.meowing.vexel.utils.render.NVGRenderer
 import java.awt.Color

@@ -1,11 +1,11 @@
 package xyz.meowing.vexel.elements
 
-import xyz.meowing.vexel.animations.EasingType
-import xyz.meowing.vexel.animations.animatePosition
-import xyz.meowing.vexel.animations.colorTo
+import xyz.meowing.vexel.animations.types.EasingType
+import xyz.meowing.vexel.animations.extensions.animatePosition
+import xyz.meowing.vexel.animations.presets.colorTo
 import xyz.meowing.vexel.components.core.Rectangle
-import xyz.meowing.vexel.components.base.Pos
-import xyz.meowing.vexel.components.base.Size
+import xyz.meowing.vexel.components.base.enums.Pos
+import xyz.meowing.vexel.components.base.enums.Size
 import xyz.meowing.vexel.components.base.VexelElement
 
 class Switch(
@@ -40,10 +40,10 @@ class Switch(
         padding,
         hoverColor,
         pressedColor,
-        Size.ParentPerc,
-        Size.ParentPerc
+        Size.Percent,
+        Size.Percent
     )
-        .setSizing(100f, Size.ParentPerc, 100f, Size.ParentPerc)
+        .setSizing(100f, Size.Percent, 100f, Size.Percent)
         .ignoreMouseEvents()
         .childOf(this)
     
@@ -60,7 +60,7 @@ class Switch(
         thumb.setSizing(thumbWidth, Size.Pixels, thumbHeight, Size.Pixels)
         thumb.setPositioning(2f, Pos.ParentPixels, 0f, Pos.ParentCenter)
         
-        onClick { _, _, _ ->
+        onClick { _ ->
             setEnabled(!enabled, animated = true)
             true
         }
@@ -91,16 +91,16 @@ class Switch(
     private fun updateTrackColor() {
         val baseColor = if (enabled) trackEnabledColor else trackDisabledColor
         val currentColor = when {
-            pressed && trackPressedColor != null -> trackPressedColor!!
-            hovered && trackHoverColor != null -> trackHoverColor!!
+            isPressed && trackPressedColor != null -> trackPressedColor!!
+            isHovered && trackHoverColor != null -> trackHoverColor!!
             else -> baseColor
         }
         track.backgroundColor = currentColor
     }
     
     override fun onRender(mouseX: Float, mouseY: Float) {
-        track.isHovered = hovered
-        track.isPressed = pressed
+        track.isHovered = isHovered
+        track.isPressed = isPressed
         updateTrackColor()
     }
 

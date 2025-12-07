@@ -15,24 +15,9 @@ plugins {
 
 apply(rootProject.file("secrets.gradle.kts"))
 
-toolkitMultiversion {
-    moveBuildsToRootProject.set(true)
-}
-
-toolkitLoomHelper {
-    if (!mcData.isNeoForge) {
-        useMixinRefMap(modData.id)
-    }
-
-    if (mcData.isForge) {
-        useTweaker("org.spongepowered.asm.launch.MixinTweaker")
-        useForgeMixin(modData.id)
-    }
-
-    if (mcData.isForgeLike && mcData.version >= MinecraftVersions.VERSION_1_16_5) {
-        useKotlinForForge()
-    }
-}
+toolkitMultiversion.moveBuildsToRootProject.set(true)
+toolkitLoomHelper.useMixinRefMap(modData.id)
+repositories.maven("https://maven.teamresourceful.com/repository/maven-public/")
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
@@ -44,10 +29,16 @@ dependencies {
 
     modApi(include("xyz.meowing:knit-$mcData:118")!!)
 
-    val lwjglVersion = if (mcData.version <= MinecraftVersions.VERSION_1_20_1) "3.3.1" else "3.3.3"
-    api(shade("org.lwjgl:lwjgl-nanovg:$lwjglVersion")!!)
+    api(shade("org.lwjgl:lwjgl-nanovg:3.3.3")!!)
     listOf("windows", "linux", "macos", "macos-arm64").forEach { v ->
-        api(shade("org.lwjgl:lwjgl-nanovg:$lwjglVersion:natives-$v")!!)
+        api(shade("org.lwjgl:lwjgl-nanovg:3.3.3:natives-$v")!!)
+    }
+
+    when (mcData.version) {
+        MinecraftVersions.VERSION_1_21_10 -> include(modApi("earth.terrarium.olympus:olympus-fabric-1.21.9:1.6.2")!!)
+        MinecraftVersions.VERSION_1_21_8 -> include(modApi("earth.terrarium.olympus:olympus-fabric-1.21.7:1.5.2")!!)
+        MinecraftVersions.VERSION_1_21_5 -> include(modApi("earth.terrarium.olympus:olympus-fabric-1.21.5:1.3.6")!!)
+        else -> {}
     }
 }
 

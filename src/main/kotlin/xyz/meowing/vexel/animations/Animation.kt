@@ -1,5 +1,9 @@
 package xyz.meowing.vexel.animations
 
+import xyz.meowing.vexel.animations.types.AnimationTarget
+import xyz.meowing.vexel.animations.types.AnimationType
+import xyz.meowing.vexel.animations.types.EasingType
+
 abstract class Animation<T>(
     val target: AnimationTarget<T>,
     val duration: Long,

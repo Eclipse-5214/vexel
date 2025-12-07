@@ -1,8 +1,9 @@
 package xyz.meowing.vexel.components.core
 
 import xyz.meowing.vexel.core.VexelWindow
-import xyz.meowing.vexel.components.base.Size
+import xyz.meowing.vexel.components.base.enums.Size
 import xyz.meowing.vexel.components.base.VexelElement
+import xyz.meowing.vexel.events.internal.MouseEvent
 import xyz.meowing.vexel.utils.render.NVGRenderer
 
 open class Container(
@@ -60,11 +61,11 @@ open class Container(
         isHovered = isPointInside(mouseX, mouseY)
 
         when {
-            isHovered && !wasHovered -> mouseEnterListeners.forEach { it(mouseX, mouseY) }
-            !isHovered && wasHovered -> mouseExitListeners.forEach { it(mouseX, mouseY) }
+            isHovered && !wasHovered -> mouseEnterListeners.forEach { it(MouseEvent.Move.Enter(mouseX, mouseY, this)) }
+            !isHovered && wasHovered -> mouseExitListeners.forEach { it(MouseEvent.Move.Exit(mouseX, mouseY, this)) }
         }
 
-        if (isHovered) mouseMoveListeners.forEach { it(mouseX, mouseY) }
+        if (isHovered) mouseMoveListeners.forEach { it(MouseEvent.Move(mouseX, mouseY, this)) }
 
         children.reversed().forEach { child ->
             if (scrollable && !isMouseOnVisible(mouseX, mouseY)) {
@@ -78,7 +79,7 @@ open class Container(
     private fun unhoverRecursive(element: VexelElement<*>, mouseX: Float, mouseY: Float) {
         if (element.isHovered) {
             element.isHovered = false
-            element.mouseExitListeners.forEach { it(mouseX, mouseY) }
+            element.mouseExitListeners.forEach { it(MouseEvent.Move.Exit(mouseX, mouseY, this)) }
         }
         element.children.forEach { unhoverRecursive(it, mouseX, mouseY) }
     }
@@ -126,7 +127,7 @@ open class Container(
             if (scrollable && !isMouseOnVisible(mouseX, mouseY)) {
                 if (child.isHovered) {
                     child.isHovered = false
-                    child.mouseExitListeners.forEach { it(mouseX, adjustedMouseY) }
+                    child.mouseExitListeners.forEach { it(MouseEvent.Move.Exit(mouseX, adjustedMouseY, this)) }
                 }
             } else {
                 child.handleMouseMove(mouseX, adjustedMouseY)
@@ -158,7 +159,7 @@ open class Container(
             isPointInside(mouseX, mouseY) -> {
                 isPressed = true
                 focus()
-                mouseClickListeners.any { it(mouseX, mouseY, button) } || mouseClickListeners.isEmpty()
+                mouseClickListeners.any { it(MouseEvent.Click(mouseX, mouseY, button, this)) } || mouseClickListeners.isEmpty()
             }
             else -> false
         }
@@ -182,8 +183,15 @@ open class Container(
             children.reversed().any { it.handleMouseRelease(mouseX, adjustedMouseY, button) }
         }
 
-        return childHandled || (wasPressed && isPointInside(mouseX, mouseY) &&
-                (mouseReleaseListeners.any { it(mouseX, mouseY, button) } || mouseReleaseListeners.isEmpty()))
+        return childHandled ||
+                (
+                wasPressed &&
+                isPointInside(mouseX, mouseY) &&
+                    (
+                    mouseReleaseListeners.any { it(MouseEvent.Release(mouseX, mouseY, button, this)) } ||
+                    mouseReleaseListeners.isEmpty()
+                    )
+                )
     }
 
     fun getContentHeight(): Float {

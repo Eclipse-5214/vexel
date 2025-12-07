@@ -1,12 +1,12 @@
 package xyz.meowing.vexel.elements
 
-import xyz.meowing.vexel.animations.EasingType
-import xyz.meowing.vexel.animations.animateFloat
-import xyz.meowing.vexel.animations.fadeIn
-import xyz.meowing.vexel.animations.fadeOut
+import xyz.meowing.vexel.animations.types.EasingType
+import xyz.meowing.vexel.animations.extensions.animateFloat
+import xyz.meowing.vexel.animations.presets.fadeIn
+import xyz.meowing.vexel.animations.presets.fadeOut
 import xyz.meowing.vexel.components.core.Rectangle
-import xyz.meowing.vexel.components.base.Pos
-import xyz.meowing.vexel.components.base.Size
+import xyz.meowing.vexel.components.base.enums.Pos
+import xyz.meowing.vexel.components.base.enums.Size
 import xyz.meowing.vexel.components.base.VexelElement
 import xyz.meowing.vexel.utils.style.Gradient
 import xyz.meowing.vexel.utils.render.NVGRenderer
@@ -38,10 +38,10 @@ class ColorPicker(
         padding,
         hoverColor,
         pressedColor,
-        Size.ParentPerc,
-        Size.ParentPerc
+        Size.Percent,
+        Size.Percent
     )
-        .setSizing(100f, Size.ParentPerc, 100f, Size.ParentPerc)
+        .setSizing(100f, Size.Percent, 100f, Size.Percent)
         .ignoreMouseEvents()
         .childOf(this)
 
@@ -51,7 +51,7 @@ class ColorPicker(
         setSizing(30f, Size.Pixels, 20f, Size.Pixels)
         setPositioning(Pos.ParentPixels, Pos.ParentPixels)
 
-        onClick { _, _, _ ->
+        onClick { _ ->
             if (!isAnimating) togglePicker()
             true
         }
@@ -141,8 +141,8 @@ class ColorPicker(
     }
 
     override fun onRender(mouseX: Float, mouseY: Float) {
-        previewRect.isHovered = hovered
-        previewRect.isPressed = pressed
+        previewRect.isHovered = isHovered
+        previewRect.isPressed = isPressed
 
         previewRect.hoverColor = selectedColor.darker().rgb
         previewRect.pressedColor = selectedColor.darker().rgb
@@ -190,18 +190,18 @@ class ColorPickerPanel(
         .childOf(this)
 
     val pickerArea = ColorPickerArea()
-        .setSizing(150f, Size.Pixels, 95f, Size.ParentPerc)
+        .setSizing(150f, Size.Pixels, 95f, Size.Percent)
         .setPositioning(Pos.ParentPixels, Pos.ParentCenter)
         .childOf(background)
 
     val hueSlider = HueSlider()
-        .setSizing(20f, Size.Pixels, 95f, Size.ParentPerc)
+        .setSizing(20f, Size.Pixels, 95f, Size.Percent)
         .setPositioning(Pos.AfterSibling, Pos.ParentCenter)
         .setOffset(5f, 0f)
         .childOf(background)
 
     val alphaSlider = AlphaSlider()
-        .setSizing(20f, Size.Pixels, 95f, Size.ParentPerc)
+        .setSizing(20f, Size.Pixels, 95f, Size.Percent)
         .setPositioning(Pos.AfterSibling, Pos.ParentCenter)
         .setOffset(5f, 0f)
         .childOf(background)
@@ -217,21 +217,21 @@ class ColorPickerPanel(
     }
 
     private fun setupInteractions() {
-        pickerArea.onMouseClick { mouseX, mouseY, _ ->
+        pickerArea.onMouseClick { event ->
             draggingPicker = true
-            updatePickerFromMouse(mouseX, mouseY)
+            updatePickerFromMouse(event.x, event.y)
             true
         }
 
-        hueSlider.onMouseClick { _, mouseY, _ ->
+        hueSlider.onMouseClick { event ->
             draggingHue = true
-            updateHueFromMouse(mouseY)
+            updateHueFromMouse(event.y)
             true
         }
 
-        alphaSlider.onMouseClick { _, mouseY, _ ->
+        alphaSlider.onMouseClick { event ->
             draggingAlpha = true
-            updateAlphaFromMouse(mouseY)
+            updateAlphaFromMouse(event.y)
             true
         }
     }

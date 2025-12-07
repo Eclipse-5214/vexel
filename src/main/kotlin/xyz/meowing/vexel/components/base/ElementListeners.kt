@@ -1,13 +1,16 @@
 package xyz.meowing.vexel.components.base
 
+import xyz.meowing.vexel.events.internal.KeyEvent
+import xyz.meowing.vexel.events.internal.MouseEvent
+
 class ElementListeners {
-    val mouseEnter = mutableListOf<(Float, Float) -> Unit>()
-    val mouseExit = mutableListOf<(Float, Float) -> Unit>()
-    val mouseMove = mutableListOf<(Float, Float) -> Unit>()
-    val mouseScroll = mutableListOf<(Float, Float, Double, Double) -> Boolean>()
-    val mouseClick = mutableListOf<(Float, Float, Int) -> Boolean>()
-    val mouseRelease = mutableListOf<(Float, Float, Int) -> Boolean>()
-    val charType = mutableListOf<(Int, Int, Char) -> Boolean>()
+    val mouseEnter = mutableListOf<(MouseEvent.Move.Enter) -> Unit>()
+    val mouseExit = mutableListOf<(MouseEvent.Move.Exit) -> Unit>()
+    val mouseMove = mutableListOf<(MouseEvent.Move) -> Unit>()
+    val mouseScroll = mutableListOf<(MouseEvent.Scroll) -> Boolean>()
+    val mouseClick = mutableListOf<(MouseEvent.Click) -> Boolean>()
+    val mouseRelease = mutableListOf<(MouseEvent.Release) -> Boolean>()
+    val charType = mutableListOf<(KeyEvent.Type) -> Boolean>()
 
     fun clear() {
         mouseEnter.clear()

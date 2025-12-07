@@ -1,12 +1,13 @@
 package xyz.meowing.vexel.elements
 
-import xyz.meowing.vexel.animations.EasingType
-import xyz.meowing.vexel.animations.animatePosition
-import xyz.meowing.vexel.animations.animateSize
+import xyz.meowing.vexel.animations.types.EasingType
+import xyz.meowing.vexel.animations.extensions.animatePosition
+import xyz.meowing.vexel.animations.extensions.animateSize
 import xyz.meowing.vexel.components.core.Rectangle
-import xyz.meowing.vexel.components.base.Pos
-import xyz.meowing.vexel.components.base.Size
+import xyz.meowing.vexel.components.base.enums.Pos
+import xyz.meowing.vexel.components.base.enums.Size
 import xyz.meowing.vexel.components.base.VexelElement
+import xyz.meowing.vexel.events.internal.MouseEvent
 import java.awt.Color
 import kotlin.math.roundToInt
 
@@ -40,22 +41,22 @@ class Slider(
     var isDragging = false
     private var dragStartX = 0f
     private var dragStartValue = 0f
-    private var globalReleaseListener: ((Float, Float, Int) -> Boolean)? = null
+    private var globalReleaseListener: ((MouseEvent.Release) -> Boolean)? = null
     private val separators: MutableList<Rectangle> = mutableListOf()
 
-    val container = Rectangle(backgroundColor, borderColor, borderRadius, borderThickness, padding, hoverColor, pressedColor, Size.ParentPerc, Size.ParentPerc)
-        .setSizing(100f, Size.ParentPerc, 100f, Size.ParentPerc)
+    val container = Rectangle(backgroundColor, borderColor, borderRadius, borderThickness, padding, hoverColor, pressedColor, Size.Percent, Size.Percent)
+        .setSizing(100f, Size.Percent, 100f, Size.Percent)
         .ignoreMouseEvents()
         .childOf(this)
 
-    val trackBackground = Rectangle(trackColor, 0x00000000, trackRadius, 0f, floatArrayOf(0f, 0f, 0f, 0f), null, null, Size.ParentPerc, Size.Pixels)
-        .setSizing(100f, Size.ParentPerc, trackHeight, Size.Pixels)
+    val trackBackground = Rectangle(trackColor, 0x00000000, trackRadius, 0f, floatArrayOf(0f, 0f, 0f, 0f), null, null, Size.Percent, Size.Pixels)
+        .setSizing(100f, Size.Percent, trackHeight, Size.Pixels)
         .setPositioning(0f, Pos.ParentPixels, 0f, Pos.ParentCenter)
         .ignoreMouseEvents()
         .childOf(container)
 
-    val stepContainer = Rectangle(0x00000000, 0x00000000, 0f, 0f, floatArrayOf(0f, 0f, 0f, 0f), null, null, Size.ParentPerc, Size.ParentPerc)
-        .setSizing(100f, Size.ParentPerc, 100f, Size.ParentPerc)
+    val stepContainer = Rectangle(0x00000000, 0x00000000, 0f, 0f, floatArrayOf(0f, 0f, 0f, 0f), null, null, Size.Percent, Size.Percent)
+        .setSizing(100f, Size.Percent, 100f, Size.Percent)
         .ignoreMouseEvents()
         .childOf(container)
 
@@ -78,14 +79,14 @@ class Slider(
         updateThumbPosition(false)
         updateTrackFill()
 
-        onMouseClick { mouseX, mouseY, button ->
-            if (button == 0) {
-                val relativeX = mouseX - container.x
+        onMouseClick { event ->
+            if (event.button == 0) {
+                val relativeX = event.x - container.x
                 val trackWidth = container.width
                 val newValue = minValue + (relativeX / trackWidth) * (maxValue - minValue)
                 setValue(newValue.coerceIn(minValue, maxValue), animated = true)
 
-                startDragging(mouseX)
+                startDragging(event.x)
                 true
             } else false
         }
@@ -126,8 +127,8 @@ class Slider(
         dragStartX = mouseX
         dragStartValue = value
 
-        globalReleaseListener = { mx, my, btn ->
-            if (btn == 0 && isDragging) {
+        globalReleaseListener = { event ->
+            if (event.button == 0 && isDragging) {
                 stopDragging()
                 true
             } else false
@@ -205,18 +206,18 @@ class Slider(
     private fun updateTrackColor() {
         val baseColor = trackColor
         val currentColor = when {
-            pressed && trackPressedColor != null -> trackPressedColor!!
-            hovered && trackHoverColor != null -> trackHoverColor!!
+            isPressed && trackPressedColor != null -> trackPressedColor!!
+            isHovered && trackHoverColor != null -> trackHoverColor!!
             else -> baseColor
         }
         trackBackground.backgroundColor = currentColor
     }
 
     override fun onRender(mouseX: Float, mouseY: Float) {
-        container.isHovered = hovered
-        container.isPressed = pressed || isDragging
-        thumb.isHovered = hovered
-        thumb.isPressed = pressed || isDragging
+        container.isHovered = isHovered
+        container.isPressed = isPressed || isDragging
+        thumb.isHovered = isHovered
+        thumb.isPressed = isPressed || isDragging
         updateTrackColor()
 
         if (!isDragging) {

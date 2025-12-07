@@ -3,11 +3,10 @@ package xyz.meowing.vexel.core
 import xyz.meowing.knit.api.KnitClient
 import xyz.meowing.knit.api.events.EventCall
 import xyz.meowing.knit.api.input.KnitKeys
+import xyz.meowing.knit.api.scheduler.TimeScheduler
 import xyz.meowing.knit.api.screen.KnitScreen
 import xyz.meowing.vexel.Vexel.eventBus
 import xyz.meowing.vexel.events.GuiEvent
-import java.util.Timer
-import kotlin.concurrent.schedule
 
 abstract class VexelScreen(screenName: String = "Vexel-Screen") : KnitScreen(screenName) {
     var renderEvent: EventCall? = null
@@ -79,10 +78,8 @@ abstract class VexelScreen(screenName: String = "Vexel-Screen") : KnitScreen(scr
     open fun onRenderGui() {}
 
     fun display() {
-        Timer().schedule(50) {
-            KnitClient.client.execute {
-                KnitClient.client.setScreen(this@VexelScreen)
-            }
+        TimeScheduler.schedule(50) {
+            KnitClient.client.setScreen(this@VexelScreen)
         }
     }
 }

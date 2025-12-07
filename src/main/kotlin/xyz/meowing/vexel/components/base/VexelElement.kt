@@ -6,12 +6,18 @@ import xyz.meowing.knit.api.input.KnitMouse
 import xyz.meowing.knit.api.render.KnitResolution
 import xyz.meowing.vexel.animations.AnimationManager
 import xyz.meowing.vexel.core.VexelWindow
-import xyz.meowing.vexel.animations.EasingType
-import xyz.meowing.vexel.animations.fadeIn
-import xyz.meowing.vexel.animations.fadeOut
+import xyz.meowing.vexel.animations.types.EasingType
+import xyz.meowing.vexel.animations.presets.fadeIn
+import xyz.meowing.vexel.animations.presets.fadeOut
+import xyz.meowing.vexel.components.base.enums.Alignment
+import xyz.meowing.vexel.components.base.enums.Offset
+import xyz.meowing.vexel.components.base.enums.Pos
+import xyz.meowing.vexel.components.base.enums.Size
 import xyz.meowing.vexel.components.core.Container
 import xyz.meowing.vexel.components.core.Rectangle
 import xyz.meowing.vexel.components.core.Tooltip
+import xyz.meowing.vexel.events.internal.KeyEvent
+import xyz.meowing.vexel.events.internal.MouseEvent
 import xyz.meowing.vexel.utils.render.NVGRenderer
 
 abstract class VexelElement<T : VexelElement<T>>(
@@ -159,8 +165,8 @@ abstract class VexelElement<T : VexelElement<T>>(
             val screenPosModes = setOf(Pos.ScreenPercent, Pos.ScreenPixels, Pos.ScreenCenter)
             if (xPositionConstraint in screenPosModes || xAlignment != Alignment.None) cache.positionCacheValid = false
             if (yPositionConstraint in screenPosModes || yAlignment != Alignment.None) cache.positionCacheValid = false
-            if (widthType == Size.ParentPerc && parent !is VexelElement<*>) cache.sizeCacheValid = false
-            if (heightType == Size.ParentPerc && parent !is VexelElement<*>) cache.sizeCacheValid = false
+            if (widthType == Size.Percent && parent !is VexelElement<*>) cache.sizeCacheValid = false
+            if (heightType == Size.Percent && parent !is VexelElement<*>) cache.sizeCacheValid = false
         }
         return resized
     }
@@ -260,7 +266,7 @@ abstract class VexelElement<T : VexelElement<T>>(
 
         width = when (widthType) {
             Size.Auto -> getAutoWidth()
-            Size.ParentPerc -> {
+            Size.Percent -> {
                 val parentElement = findFirstVisibleParent()
                 if (parentElement == null) {
                     screenWidth * (widthPercent / 100f)
@@ -295,7 +301,7 @@ abstract class VexelElement<T : VexelElement<T>>(
 
         height = when (heightType) {
             Size.Auto -> getAutoHeight()
-            Size.ParentPerc -> {
+            Size.Percent -> {
                 val parentElement = findFirstVisibleParent()
                 if (parentElement == null) {
                     screenHeight * (heightPercent / 100f)
@@ -518,7 +524,7 @@ abstract class VexelElement<T : VexelElement<T>>(
         when {
             isHovered && !wasHovered -> {
                 for (listener in mouseEnterListeners) {
-                    listener(mouseX, mouseY)
+                    listener(MouseEvent.Move.Enter(mouseX, mouseY, this as T))
                 }
 
                 tooltipElement?.let { tooltip ->
@@ -528,7 +534,7 @@ abstract class VexelElement<T : VexelElement<T>>(
             }
             !isHovered && wasHovered -> {
                 for (listener in mouseExitListeners) {
-                    listener(mouseX, mouseY)
+                    listener(MouseEvent.Move.Exit(mouseX, mouseY, this as T))
                 }
 
                 tooltipElement?.let { tooltip ->
@@ -540,7 +546,7 @@ abstract class VexelElement<T : VexelElement<T>>(
 
         if (isHovered) {
             for (listener in mouseMoveListeners) {
-                listener(mouseX, mouseY)
+                listener(MouseEvent.Move(mouseX, mouseY, this as T))
             }
         }
 
@@ -561,7 +567,7 @@ abstract class VexelElement<T : VexelElement<T>>(
                 isPressed = true
                 focus()
                 val listenerHandled = mouseClickListeners.any {
-                    it(mouseX, mouseY, button)
+                    it(MouseEvent.Click(mouseX, mouseY, button, this as T))
                 }
 
                 listenerHandled || mouseClickListeners.isEmpty()
@@ -587,7 +593,7 @@ abstract class VexelElement<T : VexelElement<T>>(
 
         if (wasPressed && isPointInside(mouseX, mouseY)) {
             val listenerHandled = mouseReleaseListeners.any {
-                it(mouseX, mouseY, button)
+                it(MouseEvent.Release(mouseX, mouseY, button, this as T))
             }
 
             return listenerHandled || mouseReleaseListeners.isEmpty()
@@ -607,7 +613,7 @@ abstract class VexelElement<T : VexelElement<T>>(
 
         if (isPointInside(mouseX, mouseY)) {
             return mouseScrollListeners.any {
-                it(mouseX, mouseY, horizontal, vertical)
+                it(MouseEvent.Scroll(mouseX, mouseY, horizontal, vertical, this as T))
             }
         }
 
@@ -621,7 +627,7 @@ abstract class VexelElement<T : VexelElement<T>>(
             it.handleCharType(keyCode, scanCode, charTyped)
         }
 
-        val selfHandled = if (isFocused || ignoreFocus) charTypeListeners.any { it(keyCode, scanCode, charTyped) } else false
+        val selfHandled = if (isFocused || ignoreFocus) charTypeListeners.any { it(KeyEvent.Type(keyCode, scanCode, charTyped, this as T)) } else false
 
         return childHandled || selfHandled
     }
@@ -734,51 +740,6 @@ abstract class VexelElement<T : VexelElement<T>>(
         return this as T
     }
 
-    fun setPositioning(xVal: Any, xPos: Pos, yVal: Any, yPos: Pos): T {
-        this.xConstraint = when (xVal) {
-            is DimensionValue -> xVal.resolve(this, true)
-            is Float -> xVal
-            is Int -> xVal.toFloat()
-            else -> 0f
-        }
-        this.xPositionConstraint = xPos
-
-        this.yConstraint = when (yVal) {
-            is DimensionValue -> yVal.resolve(this, false)
-            is Float -> yVal
-            is Int -> yVal.toFloat()
-            else -> 0f
-        }
-        this.yPositionConstraint = yPos
-        cache.positionCacheValid = false
-        return this as T
-    }
-
-    fun setSizing(width: Any, widthType: Size, height: Any, heightType: Size): T {
-        this.widthType = widthType
-        this.heightType = heightType
-
-        val resolvedWidth = when (width) {
-            is DimensionValue -> width.resolve(this, true)
-            is Float -> width
-            is Int -> width.toFloat()
-            else -> 0f
-        }
-
-        val resolvedHeight = when (height) {
-            is DimensionValue -> height.resolve(this, false)
-            is Float -> height
-            is Int -> height.toFloat()
-            else -> 0f
-        }
-
-        if (widthType == Size.Pixels) this.width = resolvedWidth else this.widthPercent = resolvedWidth
-        if (heightType == Size.Pixels) this.height = resolvedHeight else this.heightPercent = resolvedHeight
-
-        cache.sizeCacheValid = false
-        return this as T
-    }
-
     fun setAlignment(xAlignment: Alignment, yAlignment: Alignment): T {
         this.xAlignment = xAlignment
         this.yAlignment = yAlignment
@@ -836,55 +797,55 @@ abstract class VexelElement<T : VexelElement<T>>(
         return this as T
     }
 
-    fun onMouseEnter(callback: (Float, Float) -> Unit): T {
+    fun onMouseEnter(callback: (MouseEvent.Move.Enter) -> Unit): T {
         mouseEnterListeners.add(callback)
         return this as T
     }
 
-    fun onMouseExit(callback: (Float, Float) -> Unit): T {
+    fun onMouseExit(callback: (MouseEvent.Move.Exit) -> Unit): T {
         mouseExitListeners.add(callback)
         return this as T
     }
 
-    fun onMouseMove(callback: (Float, Float) -> Unit): T {
+    fun onMouseMove(callback: (MouseEvent.Move) -> Unit): T {
         mouseMoveListeners.add(callback)
         return this as T
     }
 
-    fun onHover(onEnter: (Float, Float) -> Unit, onExit: (Float, Float) -> Unit = { _, _ -> }): T {
+    fun onHover(onEnter: (MouseEvent.Move.Enter) -> Unit = { _ -> }, onExit: (MouseEvent.Move.Exit) -> Unit = { _ -> }): T {
         onMouseEnter(onEnter)
         onMouseExit(onExit)
         return this as T
     }
 
-    fun onMouseClick(callback: (Float, Float, Int) -> Boolean): T {
+    fun onMouseClick(callback: (MouseEvent.Click) -> Boolean): T {
         mouseClickListeners.add(callback)
         return this as T
     }
 
-    fun onClick(callback: (Float, Float, Int) -> Boolean): T {
+    fun onClick(callback: (MouseEvent.Click) -> Boolean): T {
         return onMouseClick(callback)
     }
 
-    fun onMouseRelease(callback: (Float, Float, Int) -> Boolean): T {
+    fun onMouseRelease(callback: (MouseEvent.Release) -> Boolean): T {
         mouseReleaseListeners.add(callback)
         return this as T
     }
 
-    fun onRelease(callback: (Float, Float, Int) -> Boolean): T {
+    fun onRelease(callback: (MouseEvent.Release) -> Boolean): T {
         return onMouseRelease(callback)
     }
 
-    fun onMouseScroll(callback: (Float, Float, Double, Double) -> Boolean): T {
+    fun onMouseScroll(callback: (MouseEvent.Scroll) -> Boolean): T {
         mouseScrollListeners.add(callback)
         return this as T
     }
 
-    fun onScroll(callback: (Float, Float, Double, Double) -> Boolean): T {
+    fun onScroll(callback: (MouseEvent.Scroll) -> Boolean): T {
         return onMouseScroll(callback)
     }
 
-    fun onCharType(callback: (Int, Int, Char) -> Boolean): T {
+    fun onCharType(callback: (KeyEvent.Type) -> Boolean): T {
         charTypeListeners.add(callback)
         return this as T
     }
@@ -895,12 +856,12 @@ abstract class VexelElement<T : VexelElement<T>>(
     }
 
     fun ignoreMouseEvents(): T {
-        mouseClickListeners.add { _, _, _ -> false }
-        mouseReleaseListeners.add { _, _, _ -> false }
-        mouseScrollListeners.add { _, _, _, _ -> false }
-        mouseMoveListeners.add { _, _ -> }
-        mouseEnterListeners.add { _, _ -> }
-        mouseExitListeners.add { _, _ -> }
+        mouseClickListeners.add { _ -> false }
+        mouseReleaseListeners.add { _ -> false }
+        mouseScrollListeners.add { _ -> false }
+        mouseMoveListeners.add { _ -> }
+        mouseEnterListeners.add { _ -> }
+        mouseExitListeners.add { _ -> }
         return this as T
     }
 
@@ -933,11 +894,4 @@ abstract class VexelElement<T : VexelElement<T>>(
         renderHitbox = true
         return this as T
     }
-
-    val hovered: Boolean get() = isHovered
-    val pressed: Boolean get() = isPressed
-    val focused: Boolean get() = isFocused
 }
-
-fun Float.percent(): DimensionValue = DimensionValue.Percent(this)
-fun Float.pixels(): DimensionValue = DimensionValue.Pixels(this)

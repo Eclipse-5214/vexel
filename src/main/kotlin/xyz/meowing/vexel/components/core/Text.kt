@@ -1,7 +1,7 @@
 package xyz.meowing.vexel.components.core
 
-import xyz.meowing.vexel.components.base.Pos
-import xyz.meowing.vexel.components.base.Size
+import xyz.meowing.vexel.components.base.enums.Pos
+import xyz.meowing.vexel.components.base.enums.Size
 import xyz.meowing.vexel.components.base.VexelElement
 import xyz.meowing.vexel.utils.render.NVGRenderer
 import xyz.meowing.vexel.utils.style.Font

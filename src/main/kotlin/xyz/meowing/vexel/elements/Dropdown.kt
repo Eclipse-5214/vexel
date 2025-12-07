@@ -1,13 +1,13 @@
 package xyz.meowing.vexel.elements
 
-import xyz.meowing.vexel.animations.EasingType
-import xyz.meowing.vexel.animations.fadeIn
-import xyz.meowing.vexel.animations.fadeOut
+import xyz.meowing.vexel.animations.types.EasingType
+import xyz.meowing.vexel.animations.presets.fadeIn
+import xyz.meowing.vexel.animations.presets.fadeOut
 import xyz.meowing.vexel.components.core.Rectangle
 import xyz.meowing.vexel.components.core.SvgImage
 import xyz.meowing.vexel.components.core.Text
-import xyz.meowing.vexel.components.base.Pos
-import xyz.meowing.vexel.components.base.Size
+import xyz.meowing.vexel.components.base.enums.Pos
+import xyz.meowing.vexel.components.base.enums.Size
 import xyz.meowing.vexel.components.base.VexelElement
 import java.awt.Color
 import kotlin.math.max
@@ -44,10 +44,10 @@ class Dropdown(
         padding,
         hoverColor,
         pressedColor,
-        Size.ParentPerc,
-        Size.ParentPerc
+        Size.Percent,
+        Size.Percent
     )
-        .setSizing(100f, Size.ParentPerc, 100f, Size.ParentPerc)
+        .setSizing(100f, Size.Percent, 100f, Size.Percent)
         .ignoreMouseEvents()
         .setBorderGradientColor(borderColorStart, borderColorEnd)
         .childOf(this)
@@ -68,7 +68,7 @@ class Dropdown(
         setSizing(180f, Size.Pixels, 0f, Size.Auto)
         setPositioning(Pos.ParentPixels, Pos.ParentPixels)
 
-        onClick { _, _, _ ->
+        onClick { _ ->
             if (!isAnimating) togglePicker()
             true
         }
@@ -152,8 +152,8 @@ class Dropdown(
     }
 
     override fun onRender(mouseX: Float, mouseY: Float) {
-        previewRect.isHovered = hovered
-        previewRect.isPressed = pressed
+        previewRect.isHovered = isHovered
+        previewRect.isPressed = isPressed
 
         if (isPickerOpen && pickerPanel != null) {
             if (!previewRect.isVisibleInScrollableParents()) closePicker() else updatePickerPosition()
@@ -207,9 +207,9 @@ class DropDownPanel(
 
         options.forEachIndexed { index, option ->
             val rect = Rectangle(if (index == selectedIndex) selectedColor else backgroundColor, borderColor, 5f, 0f, floatArrayOf(5f, 5f, 5f, 5f), hoverColor = 0x80505050.toInt())
-                .setSizing(100f, Size.ParentPerc, 0f, Size.Auto)
+                .setSizing(100f, Size.Percent, 0f, Size.Auto)
                 .setPositioning(0f, Pos.ParentPixels, 1f, Pos.AfterSibling)
-                .onClick { _, _, _ ->
+                .onClick { _ ->
                     onValueChange.forEach { it.invoke(index) }
                     true
                 }

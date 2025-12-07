@@ -1,12 +1,13 @@
 package xyz.meowing.vexel.components.core
 
-import xyz.meowing.vexel.animations.EasingType
-import xyz.meowing.vexel.animations.animateFloat
-import xyz.meowing.vexel.animations.fadeIn
-import xyz.meowing.vexel.animations.fadeOut
+import xyz.meowing.vexel.animations.types.EasingType
+import xyz.meowing.vexel.animations.extensions.animateFloat
+import xyz.meowing.vexel.animations.presets.fadeIn
+import xyz.meowing.vexel.animations.presets.fadeOut
 import xyz.meowing.vexel.core.VexelWindow
-import xyz.meowing.vexel.components.base.Size
+import xyz.meowing.vexel.components.base.enums.Size
 import xyz.meowing.vexel.components.base.VexelElement
+import xyz.meowing.vexel.events.internal.MouseEvent
 import xyz.meowing.vexel.utils.render.NVGRenderer
 import xyz.meowing.vexel.utils.style.Gradient
 import java.awt.Color
@@ -55,8 +56,8 @@ open class Rectangle(
         if (!visible || (height - (padding[0] + padding[2])) == 0f || (width - (padding[1] + padding[3])) == 0f) return
 
         val currentBgColor = when {
-            pressed && pressedColor != null -> pressedColor!!
-            hovered && hoverColor != null -> hoverColor!!
+            isPressed && pressedColor != null -> pressedColor!!
+            isHovered && hoverColor != null -> hoverColor!!
             else -> backgroundColor
         }
 
@@ -142,14 +143,14 @@ open class Rectangle(
 
         when {
             isHovered && !wasHovered -> {
-                mouseEnterListeners.forEach { it(mouseX, mouseY) }
+                mouseEnterListeners.forEach { it(MouseEvent.Move.Enter(mouseX, mouseY, this)) }
                 tooltipElement?.let {
                     it.fadeIn(200, EasingType.EASE_OUT)
                     it.innerText.fadeIn(200, EasingType.EASE_OUT)
                 }
             }
             !isHovered && wasHovered -> {
-                mouseExitListeners.forEach { it(mouseX, mouseY) }
+                mouseExitListeners.forEach { it(MouseEvent.Move.Exit(mouseX, mouseY, this)) }
                 tooltipElement?.let {
                     it.fadeOut(200, EasingType.EASE_OUT)
                     it.innerText.fadeOut(200, EasingType.EASE_OUT)
@@ -157,7 +158,7 @@ open class Rectangle(
             }
         }
 
-        if (isHovered) mouseMoveListeners.forEach { it(mouseX, mouseY) }
+        if (isHovered) mouseMoveListeners.forEach { it(MouseEvent.Move(mouseX, mouseY, this)) }
 
         children.reversed().forEach { child ->
             if (scrollable && !isMouseOnVisible(mouseX, mouseY)) {
@@ -171,7 +172,7 @@ open class Rectangle(
     private fun unhoverRecursive(element: VexelElement<*>, mouseX: Float, mouseY: Float) {
         if (element.isHovered) {
             element.isHovered = false
-            element.mouseExitListeners.forEach { it(mouseX, mouseY) }
+            element.mouseExitListeners.forEach { it(MouseEvent.Move.Exit(mouseX, mouseY, this)) }
         }
         element.children.forEach { unhoverRecursive(it, mouseX, mouseY) }
     }
@@ -221,7 +222,7 @@ open class Rectangle(
             if (scrollable && !isMouseOnVisible(mouseX, mouseY)) {
                 if (child.isHovered) {
                     child.isHovered = false
-                    child.mouseExitListeners.forEach { it(mouseX, adjustedMouseY) }
+                    child.mouseExitListeners.forEach { it(MouseEvent.Move.Exit(mouseX, mouseY, this)) }
                 }
             } else {
                 child.handleMouseMove(mouseX, adjustedMouseY)
@@ -252,7 +253,7 @@ open class Rectangle(
             isPointInside(mouseX, mouseY) -> {
                 isPressed = true
                 focus()
-                mouseClickListeners.any { it(mouseX, mouseY, button) } || mouseClickListeners.isEmpty()
+                mouseClickListeners.any { it(MouseEvent.Click(mouseX, mouseY, button, this)) } || mouseClickListeners.isEmpty()
             }
             else -> false
         }
@@ -276,7 +277,15 @@ open class Rectangle(
             children.reversed().any { it.handleMouseRelease(mouseX, adjustedMouseY, button) }
         }
 
-        return childHandled || (wasPressed && isPointInside(mouseX, mouseY) && (mouseReleaseListeners.any { it(mouseX, mouseY, button) } || mouseReleaseListeners.isEmpty()))
+        return childHandled ||
+                (
+                wasPressed &&
+                isPointInside(mouseX, mouseY) &&
+                    (
+                    mouseReleaseListeners.any { it(MouseEvent.Release(mouseX, mouseY, button, this)) } ||
+                    mouseReleaseListeners.isEmpty()
+                    )
+                )
     }
 
     fun getContentHeight(): Float {

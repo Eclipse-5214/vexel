@@ -1,12 +1,12 @@
 package xyz.meowing.vexel.elements
 
-import xyz.meowing.vexel.animations.EasingType
-import xyz.meowing.vexel.animations.fadeIn
-import xyz.meowing.vexel.animations.fadeOut
+import xyz.meowing.vexel.animations.types.EasingType
+import xyz.meowing.vexel.animations.presets.fadeIn
+import xyz.meowing.vexel.animations.presets.fadeOut
 import xyz.meowing.vexel.components.core.Rectangle
 import xyz.meowing.vexel.components.core.SvgImage
-import xyz.meowing.vexel.components.base.Pos
-import xyz.meowing.vexel.components.base.Size
+import xyz.meowing.vexel.components.base.enums.Pos
+import xyz.meowing.vexel.components.base.enums.Size
 import xyz.meowing.vexel.components.base.VexelElement
 import java.awt.Color
 
@@ -36,22 +36,22 @@ class CheckBox(
         padding,
         hoverColor,
         pressedColor,
-        Size.ParentPerc,
-        Size.ParentPerc
+        Size.Percent,
+        Size.Percent
     )
-        .setSizing(100f, Size.ParentPerc, 100f, Size.ParentPerc)
+        .setSizing(100f, Size.Percent, 100f, Size.Percent)
         .ignoreMouseEvents()
         .childOf(this)
 
     val checkMark = SvgImage(svgPath = "/assets/vexel/checkmark.svg", color = Color(checkmarkColor and 0x00FFFFFF, true))
-        .setSizing(120f, Size.ParentPerc, 120f, Size.ParentPerc)
+        .setSizing(120f, Size.Percent, 120f, Size.Percent)
         .setPositioning(0f, Pos.ParentCenter, 0f, Pos.ParentCenter)
         .childOf(background)
 
     init {
         setSizing(20f, Size.Pixels, 20f, Size.Pixels)
         setPositioning(Pos.ParentPixels, Pos.ParentPixels)
-        onClick { _, _, _ ->
+        onClick { _ ->
             setChecked(!checked, animated = true)
             true
         }
@@ -73,16 +73,16 @@ class CheckBox(
     private fun updateBackgroundColor() {
         val newColor = when {
             !checked -> disabledBackgroundColor
-            pressed -> backgroundPressedColor
-            hovered -> backgroundHoverColor
+            isPressed -> backgroundPressedColor
+            isHovered -> backgroundHoverColor
             else -> enabledBackgroundColor
         }
         background.backgroundColor(newColor)
     }
 
     override fun onRender(mouseX: Float, mouseY: Float) {
-        background.isHovered = hovered
-        background.isPressed = pressed
+        background.isHovered = isHovered
+        background.isPressed = isPressed
         updateBackgroundColor()
     }
 }

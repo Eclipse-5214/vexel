@@ -1,11 +1,6 @@
 package xyz.meowing.vexel.mixins;
 
-//#if MC >= 1.21
 import com.mojang.blaze3d.opengl.GlStateManager;
-//#else
-//$$ import com.mojang.blaze3d.platform.GlStateManager;
-//#endif
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

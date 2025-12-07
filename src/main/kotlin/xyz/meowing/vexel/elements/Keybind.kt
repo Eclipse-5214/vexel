@@ -1,10 +1,11 @@
 package xyz.meowing.vexel.elements
 
-import org.lwjgl.glfw.GLFW
+import xyz.meowing.knit.api.input.KnitInputs
+import xyz.meowing.knit.api.input.KnitKeys
 import xyz.meowing.vexel.components.core.Rectangle
 import xyz.meowing.vexel.components.core.Text
-import xyz.meowing.vexel.components.base.Pos
-import xyz.meowing.vexel.components.base.Size
+import xyz.meowing.vexel.components.base.enums.Pos
+import xyz.meowing.vexel.components.base.enums.Size
 import xyz.meowing.vexel.components.base.VexelElement
 
 class Keybind(
@@ -30,14 +31,14 @@ class Keybind(
         padding,
         hoverColor,
         pressedColor,
-        Size.ParentPerc,
-        Size.ParentPerc
+        Size.Percent,
+        Size.Percent
     )
-        .setSizing(100f, Size.ParentPerc, 100f, Size.ParentPerc)
+        .setSizing(100f, Size.Percent, 100f, Size.Percent)
         .ignoreMouseEvents()
         .childOf(this)
 
-    val innerText = Text("Key A", 0xFFFFFFFF.toInt(), 12f)
+    val innerText = Text(getKeyName(KnitKeys.KEY_A.code, 0), 0xFFFFFFFF.toInt(), 12f)
         .setPositioning(Pos.ParentCenter, Pos.ParentCenter)
         .childOf(background)
 
@@ -46,25 +47,25 @@ class Keybind(
         setPositioning(Pos.ParentPixels, Pos.ParentPixels)
         ignoreFocus()
 
-        onClick { _, _, _ ->
+        onClick { _ ->
             listenForKeybind()
             true
         }
 
-        onCharType { keyCode, scanCode, char ->
+        onCharType { event ->
             if (!listen) return@onCharType false
 
-            if (keyCode == 256) {
+            if (event.keyCode == 256) {
                 innerText.text = "None"
                 selectedKeyId = null
                 selectedScanId = null
             } else {
-                innerText.text = getKeyName(keyCode, scanCode)
-                selectedKeyId = keyCode
-                selectedScanId = scanCode
+                innerText.text = getKeyName(event.keyCode, event.scanCode)
+                selectedKeyId = event.keyCode
+                selectedScanId = event.scanCode
             }
 
-            onValueChange.forEach { it.invoke(keyCode) }
+            onValueChange.forEach { it.invoke(event.keyCode) }
             listen = false
             true
         }
@@ -76,22 +77,13 @@ class Keybind(
     }
 
     override fun onRender(mouseX: Float, mouseY: Float) {
-        background.isHovered = hovered
-        background.isPressed = pressed
+        background.isHovered = isHovered
+        background.isPressed = isPressed
     }
 
-    private fun getKeyName(keyCode: Int, scanCode: Int): String = when (keyCode) {
-        340 -> "LShift"
-        344 -> "RShift"
-        341 -> "LCtrl"
-        345 -> "RCtrl"
-        342 -> "LAlt"
-        346 -> "RAlt"
-        257 -> "Enter"
-        256 -> "None"
-        32 -> "Space"
-        in 290..301 -> "F${keyCode - 289}"
-        else -> "Key " + (GLFW.glfwGetKeyName(keyCode, scanCode)?.uppercase() ?: "$keyCode")
+    private fun getKeyName(keyCode: Int, scanCode: Int): String = when(keyCode) {
+        0 -> "None"
+        else -> KnitInputs.getDisplayName(keyCode, scanCode)
     }
 
     override fun getAutoWidth(): Float = background.getAutoWidth()

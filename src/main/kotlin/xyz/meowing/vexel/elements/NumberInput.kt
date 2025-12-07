@@ -6,8 +6,8 @@ import xyz.meowing.knit.api.input.KnitKeys
 import xyz.meowing.knit.api.KnitClient.client
 import xyz.meowing.vexel.components.core.Rectangle
 import xyz.meowing.vexel.components.core.Text
-import xyz.meowing.vexel.components.base.Pos
-import xyz.meowing.vexel.components.base.Size
+import xyz.meowing.vexel.components.base.enums.Pos
+import xyz.meowing.vexel.components.base.enums.Size
 import xyz.meowing.vexel.components.base.VexelElement
 import xyz.meowing.vexel.utils.render.NVGRenderer
 import java.awt.Color
@@ -69,10 +69,10 @@ class NumberInput(
         padding,
         hoverColor,
         pressedColor,
-        Size.ParentPerc,
-        Size.ParentPerc
+        Size.Percent,
+        Size.Percent
     )
-        .setSizing(100f, Size.ParentPerc, 100f, Size.ParentPerc)
+        .setSizing(100f, Size.Percent, 100f, Size.Percent)
         .ignoreMouseEvents()
         .childOf(this)
 
@@ -98,16 +98,16 @@ class NumberInput(
         setPositioning(Pos.ParentPixels, Pos.ParentPixels)
         setRequiresFocus()
 
-        onClick { mouseX, mouseY, button ->
-            if (button != 0) return@onClick false
+        onClick { event ->
+            if (event.button != 0) return@onClick false
 
-            val clickedOnField = mouseX in x..(x + width) && mouseY in y..(y + height)
+            val clickedOnField = event.x in x..(x + width) && event.y in y..(y + height)
 
             if (clickedOnField) {
                 isFocused = true
                 isDragging = true
 
-                val clickRelX = mouseX - (x - scrollOffset)
+                val clickRelX = event.x - (x - scrollOffset)
                 val newCursorIndex = getCharIndexAtAbsX(clickRelX)
 
                 val currentTime = System.currentTimeMillis()
@@ -139,16 +139,16 @@ class NumberInput(
             true
         }
 
-        onCharType { keyCode, scanCode, char ->
-            keyTyped(keyCode, scanCode, char)
+        onCharType { event ->
+            keyTyped(event.keyCode, event.scanCode, event.char)
         }
     }
 
     override fun onRender(mouseX: Float, mouseY: Float) {
-        background.isHovered = hovered
-        background.isPressed = pressed
+        background.isHovered = isHovered
+        background.isPressed = isPressed
 
-        val shouldShowPlaceholder = stringValue.isEmpty() && !focused
+        val shouldShowPlaceholder = stringValue.isEmpty() && !isFocused
         val textColor = if (shouldShowPlaceholder) Color(120, 120, 120).rgb else textColor
 
         innerText.text = if (shouldShowPlaceholder) placeholder else stringValue
@@ -171,7 +171,7 @@ class NumberInput(
         caret.width = 1f
         val x = NVGRenderer.textWidth(stringValue.substring(0, cursorIndex.coerceIn(0, stringValue.length)), fontSize, NVGRenderer.defaultFont) - scrollOffset
         caret.setPositioning(x, Pos.ParentPixels, 0f, Pos.ParentCenter)
-        caret.visible = focused && caretVisible && !shouldShowPlaceholder
+        caret.visible = isFocused && caretVisible && !shouldShowPlaceholder
 
         if (System.currentTimeMillis() - lastBlink > caretBlinkRate) {
             caretVisible = !caretVisible

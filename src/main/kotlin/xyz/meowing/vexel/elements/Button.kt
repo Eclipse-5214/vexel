@@ -2,8 +2,8 @@ package xyz.meowing.vexel.elements
 
 import xyz.meowing.vexel.components.core.Rectangle
 import xyz.meowing.vexel.components.core.Text
-import xyz.meowing.vexel.components.base.Pos
-import xyz.meowing.vexel.components.base.Size
+import xyz.meowing.vexel.components.base.enums.Pos
+import xyz.meowing.vexel.components.base.enums.Size
 import xyz.meowing.vexel.components.base.VexelElement
 import xyz.meowing.vexel.utils.style.Font
 import xyz.meowing.vexel.utils.render.NVGRenderer
@@ -34,10 +34,10 @@ class Button(
         padding,
         hoverColor,
         pressedColor,
-        Size.ParentPerc,
-        Size.ParentPerc
+        Size.Percent,
+        Size.Percent
     )
-        .setSizing(100f, Size.ParentPerc, 100f, Size.ParentPerc)
+        .setSizing(100f, Size.Percent, 100f, Size.Percent)
         .ignoreMouseEvents()
         .childOf(this)
 
@@ -50,13 +50,13 @@ class Button(
     }
 
     override fun onRender(mouseX: Float, mouseY: Float) {
-        background.isHovered = hovered
-        background.isPressed = pressed
+        background.isHovered = isHovered
+        background.isPressed = isPressed
 
         if (text.isNotEmpty()) {
             val currentTextColor = when {
-                pressed && pressedTextColor != null -> pressedTextColor!!
-                hovered && hoverTextColor != null -> hoverTextColor!!
+                isHovered && pressedTextColor != null -> pressedTextColor!!
+                isPressed && hoverTextColor != null -> hoverTextColor!!
                 else -> textColor
             }
             innerText.textColor = currentTextColor

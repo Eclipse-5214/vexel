@@ -6,8 +6,8 @@ import xyz.meowing.knit.api.input.KnitKeyboard
 import xyz.meowing.knit.api.input.KnitKeys
 import xyz.meowing.vexel.components.core.Rectangle
 import xyz.meowing.vexel.components.core.Text
-import xyz.meowing.vexel.components.base.Pos
-import xyz.meowing.vexel.components.base.Size
+import xyz.meowing.vexel.components.base.enums.Pos
+import xyz.meowing.vexel.components.base.enums.Size
 import xyz.meowing.vexel.components.base.VexelElement
 import xyz.meowing.vexel.utils.render.NVGRenderer
 import java.awt.Color
@@ -56,8 +56,8 @@ class TextInput(
     private var clickCount = 0
     private var caretVisible = true
 
-    val background = Rectangle(backgroundColor, borderColor, borderRadius, borderThickness, padding, hoverColor, pressedColor, Size.ParentPerc, Size.ParentPerc)
-        .setSizing(100f, Size.ParentPerc, 100f, Size.ParentPerc)
+    val background = Rectangle(backgroundColor, borderColor, borderRadius, borderThickness, padding, hoverColor, pressedColor, Size.Percent, Size.Percent)
+        .setSizing(100f, Size.Percent, 100f, Size.Percent)
         .ignoreMouseEvents()
         .childOf(this)
 
@@ -83,16 +83,16 @@ class TextInput(
         setPositioning(Pos.ParentPixels, Pos.ParentPixels)
         setRequiresFocus()
 
-        onClick { mouseX, mouseY, button ->
-            if (button != 0) return@onClick false
+        onClick { event ->
+            if (event.button != 0) return@onClick false
 
-            val clickedOnField = mouseX in x..(x + width) && mouseY in y..(y + height)
+            val clickedOnField = event.x in x..(x + width) && event.y in y..(y + height)
 
             if (clickedOnField) {
                 isFocused = true
                 isDragging = true
 
-                val clickRelX = mouseX - (background.x + background.padding[3]) + scrollOffset
+                val clickRelX = event.x - (background.x + background.padding[3]) + scrollOffset
                 val newCursorIndex = getCharIndexAtAbsX(clickRelX)
 
                 val currentTime = System.currentTimeMillis()
@@ -124,16 +124,16 @@ class TextInput(
             true
         }
 
-        onCharType { keyCode, scanCode, char ->
-            keyTyped(keyCode, scanCode, char)
+        onCharType { event ->
+            keyTyped(event.keyCode, event.scanCode, event.char)
         }
     }
 
     override fun onRender(mouseX: Float, mouseY: Float) {
-        background.isHovered = hovered
-        background.isPressed = pressed
+        background.isHovered = isHovered
+        background.isPressed = isPressed
 
-        val shouldShowPlaceholder = value.isEmpty() && !focused
+        val shouldShowPlaceholder = value.isEmpty() && !isFocused
         val textColor = if (shouldShowPlaceholder) Color(120, 120, 120).rgb else textColor
 
         innerText.text = if (shouldShowPlaceholder) placeholder else value
@@ -156,7 +156,7 @@ class TextInput(
         caret.width = 1f
         val caretX = NVGRenderer.textWidth(value.substring(0, cursorIndex.coerceIn(0, value.length)), fontSize, NVGRenderer.defaultFont)
         caret.setPositioning(caretX, Pos.ParentPixels, 0f, Pos.ParentCenter)
-        caret.visible = focused && caretVisible && !shouldShowPlaceholder
+        caret.visible = isFocused && caretVisible && !shouldShowPlaceholder
 
         if (System.currentTimeMillis() - lastBlink > caretBlinkRate) {
             caretVisible = !caretVisible

@@ -1,3 +1,5 @@
+!!This is a hard fork of vexel to be maintained by yours truly as Stellarium is dead
+
 # Vexel
 
 Vexel is a modern, declarative GUI library for Minecraft mods that simplifies interface creation. Built on top of NanoVG, it offers both high-level declarative components and low-level rendering capabilities. Heavily inspired by Elementa, Vexel provides a clean API for creating responsive, animated user interfaces.

@@ -1,4 +1,5 @@
-!!This is a hard fork of vexel to be maintained by yours truly as Stellarium is dead
+> [!NOTE]
+> This is a hard fork of vexel to be maintained by yours truly as Stellarium is dead
 
 # Vexel
 

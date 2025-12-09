@@ -1,9 +1,9 @@
 package xyz.meowing.vexel.elements
 
-import xyz.meowing.knit.api.input.KnitInputs
-import xyz.meowing.knit.api.input.KnitKeyboard
-import xyz.meowing.knit.api.input.KnitKeys
-import xyz.meowing.knit.api.KnitClient.client
+import dev.deftu.omnicore.api.client.client
+import dev.deftu.omnicore.api.client.input.OmniInputs
+import dev.deftu.omnicore.api.client.input.OmniKeyboard
+import dev.deftu.omnicore.api.client.input.OmniKeys
 import xyz.meowing.vexel.Vexel.renderer
 import xyz.meowing.vexel.components.core.Rectangle
 import xyz.meowing.vexel.components.core.Text
@@ -119,7 +119,7 @@ class NumberInput(
                 when (clickCount) {
                     1 -> {
                         cursorIndex = newCursorIndex
-                        if (!KnitKeyboard.isShiftKeyPressed) {
+                        if (!OmniKeyboard.isShiftKeyPressed) {
                             selectionAnchor = cursorIndex
                         }
                     }
@@ -182,42 +182,42 @@ class NumberInput(
     fun keyTyped(keyCode: Int, scanCode: Int, char: Char): Boolean {
         if (!isFocused) return false
 
-        val ctrlDown = KnitKeyboard.isCtrlKeyPressed
-        val shiftDown = KnitKeyboard.isShiftKeyPressed
+        val ctrlDown = OmniKeyboard.isCtrlKeyPressed
+        val shiftDown = OmniKeyboard.isShiftKeyPressed
 
         when (keyCode) {
-            KnitKeys.KEY_ESCAPE.code, KnitKeys.KEY_ENTER.code -> {
+            OmniKeys.KEY_ESCAPE.code, OmniKeys.KEY_ENTER.code -> {
                 isFocused = false
                 return true
             }
-            KnitKeys.KEY_BACKSPACE.code -> {
+            OmniKeys.KEY_BACKSPACE.code -> {
                 if (ctrlDown) deletePrevWord() else deleteChar(-1)
                 return true
             }
-            KnitKeys.KEY_DELETE.code -> {
+            OmniKeys.KEY_DELETE.code -> {
                 if (ctrlDown) deleteNextWord() else deleteChar(1)
                 return true
             }
-            KnitKeys.KEY_LEFT.code -> {
+            OmniKeys.KEY_LEFT.code -> {
                 if (ctrlDown) moveWord(-1, shiftDown) else moveCaret(-1, shiftDown)
                 return true
             }
-            KnitKeys.KEY_RIGHT.code -> {
+            OmniKeys.KEY_RIGHT.code -> {
                 if (ctrlDown) moveWord(1, shiftDown) else moveCaret(1, shiftDown)
                 return true
             }
-            KnitKeys.KEY_HOME.code -> {
+            OmniKeys.KEY_HOME.code -> {
                 moveCaretTo(0, shiftDown)
                 return true
             }
-            KnitKeys.KEY_END.code -> {
+            OmniKeys.KEY_END.code -> {
                 moveCaretTo(stringValue.length, shiftDown)
                 return true
             }
         }
 
         if (ctrlDown) {
-            val keyName = KnitInputs.getDisplayName(keyCode, scanCode).lowercase()
+            val keyName = OmniInputs.getDisplayName(keyCode, scanCode).lowercase()
             when (keyName) {
                 "a" -> {
                     selectAll()

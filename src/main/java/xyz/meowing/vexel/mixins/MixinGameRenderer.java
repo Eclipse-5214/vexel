@@ -1,12 +1,12 @@
 package xyz.meowing.vexel.mixins;
 
+import dev.deftu.omnicore.api.client.render.OmniResolution;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.RenderTickCounter;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import xyz.meowing.knit.api.render.KnitResolution;
 import xyz.meowing.vexel.Vexel;
 import xyz.meowing.vexel.events.GuiEvent;
 
@@ -25,7 +25,7 @@ public class MixinGameRenderer {
             boolean tick,
             CallbackInfo ci
     ) {
-        Vexel.getRenderer().beginFrame(KnitResolution.getWindowWidth(), KnitResolution.getWindowHeight());
+        Vexel.getRenderer().beginFrame(OmniResolution.getWindowWidth(), OmniResolution.getWindowHeight());
         if (
                 getEventBus().post(
                         new GuiEvent.Render(),

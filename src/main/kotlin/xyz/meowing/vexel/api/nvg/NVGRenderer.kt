@@ -9,7 +9,6 @@ import org.lwjgl.opengl.GL20
 import org.lwjgl.opengl.GL30
 import org.lwjgl.stb.STBImage
 import org.lwjgl.system.MemoryUtil
-import xyz.meowing.knit.api.KnitClient.client
 import xyz.meowing.vexel.api.style.Color.Companion.alpha
 import xyz.meowing.vexel.api.style.Color.Companion.blue
 import xyz.meowing.vexel.api.style.Color.Companion.green
@@ -26,6 +25,7 @@ import kotlin.math.round
 import net.minecraft.client.gl.GlBackend
 import net.minecraft.client.texture.GlTexture
 import com.mojang.blaze3d.opengl.GlStateManager
+import dev.deftu.omnicore.api.client.client
 import xyz.meowing.vexel.api.RenderAPI
 
 //#if MC >= 1.21.9

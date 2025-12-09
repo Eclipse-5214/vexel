@@ -1,6 +1,6 @@
 package xyz.meowing.vexel.core
 
-import xyz.meowing.knit.api.input.KnitMouse
+import dev.deftu.omnicore.api.client.input.OmniMouse
 import xyz.meowing.vexel.animations.AnimationManager
 import xyz.meowing.vexel.components.base.VexelElement
 
@@ -18,24 +18,24 @@ class VexelWindow {
     }
 
     fun draw() {
-        children.forEach { it.render(KnitMouse.Raw.x.toFloat(), KnitMouse.Raw.y.toFloat()) }
+        children.forEach { it.render(OmniMouse.rawX.toFloat(), OmniMouse.rawY.toFloat()) }
         AnimationManager.update()
     }
 
     fun mouseClick(button: Int): Boolean {
-        return children.reversed().any { it.handleMouseClick(KnitMouse.Raw.x.toFloat(), KnitMouse.Raw.y.toFloat(), button) }
+        return children.reversed().any { it.handleMouseClick(OmniMouse.rawX.toFloat(), OmniMouse.rawY.toFloat(), button) }
     }
 
     fun mouseRelease(button: Int): Boolean {
-        return children.reversed().any { it.handleMouseRelease(KnitMouse.Raw.x.toFloat(), KnitMouse.Raw.y.toFloat(), button) }
+        return children.reversed().any { it.handleMouseRelease(OmniMouse.rawX.toFloat(), OmniMouse.rawY.toFloat(), button) }
     }
 
     fun mouseMove() {
-        children.reversed().forEach { it.handleMouseMove(KnitMouse.Raw.x.toFloat(), KnitMouse.Raw.y.toFloat()) }
+        children.reversed().forEach { it.handleMouseMove(OmniMouse.rawX.toFloat(), OmniMouse.rawY.toFloat()) }
     }
 
     fun mouseScroll(horizontalDelta: Double, verticalDelta: Double) {
-        children.reversed().forEach { it.handleMouseScroll(KnitMouse.Raw.x.toFloat(), KnitMouse.Raw.y.toFloat(), horizontalDelta, verticalDelta) }
+        children.reversed().forEach { it.handleMouseScroll(OmniMouse.rawX.toFloat(), OmniMouse.rawY.toFloat(), horizontalDelta, verticalDelta) }
     }
 
     fun charType(keyCode: Int, scanCode: Int, charTyped: Char): Boolean {

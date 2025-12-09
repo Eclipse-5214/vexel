@@ -1,7 +1,7 @@
 package xyz.meowing.vexel.elements
 
-import xyz.meowing.knit.api.input.KnitInputs
-import xyz.meowing.knit.api.input.KnitKeys
+import dev.deftu.omnicore.api.client.input.OmniInputs
+import dev.deftu.omnicore.api.client.input.OmniKeys
 import xyz.meowing.vexel.components.core.Rectangle
 import xyz.meowing.vexel.components.core.Text
 import xyz.meowing.vexel.components.base.enums.Pos
@@ -38,7 +38,7 @@ class Keybind(
         .ignoreMouseEvents()
         .childOf(this)
 
-    val innerText = Text(getKeyName(KnitKeys.KEY_A.code, 0), 0xFFFFFFFF.toInt(), 12f)
+    val innerText = Text(getKeyName(OmniKeys.KEY_A.code, 0), 0xFFFFFFFF.toInt(), 12f)
         .setPositioning(Pos.ParentCenter, Pos.ParentCenter)
         .childOf(background)
 
@@ -83,7 +83,7 @@ class Keybind(
 
     private fun getKeyName(keyCode: Int, scanCode: Int): String = when(keyCode) {
         0 -> "None"
-        else -> KnitInputs.getDisplayName(keyCode, scanCode)
+        else -> OmniInputs.getDisplayName(keyCode, scanCode)
     }
 
     override fun getAutoWidth(): Float = background.getAutoWidth()

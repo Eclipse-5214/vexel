@@ -20,6 +20,8 @@ toolkitLoomHelper.useMixinRefMap(modData.id)
 repositories.maven("https://maven.teamresourceful.com/repository/maven-public/")
 
 dependencies {
+    with(libs.textile.get()) { modImplementation("${this.group}:${this.name}-$mcData:${this.version}") }
+    with(libs.omnicore.get()) { modImplementation("${this.group}:${this.name}-$mcData:${this.version}") }
     implementation(kotlin("stdlib-jdk8"))
 
     if (mcData.isFabric) {
@@ -27,18 +29,9 @@ dependencies {
         modImplementation("net.fabricmc:fabric-language-kotlin:${mcData.dependencies.fabric.fabricLanguageKotlinVersion}")
     }
 
-    modApi(include("xyz.meowing:knit-$mcData:118")!!)
-
     api(shade("org.lwjgl:lwjgl-nanovg:3.3.3")!!)
     listOf("windows", "linux", "macos", "macos-arm64").forEach { v ->
         api(shade("org.lwjgl:lwjgl-nanovg:3.3.3:natives-$v")!!)
-    }
-
-    when (mcData.version) {
-        MinecraftVersions.VERSION_1_21_10 -> include(modApi("earth.terrarium.olympus:olympus-fabric-1.21.9:1.6.2")!!)
-        MinecraftVersions.VERSION_1_21_8 -> include(modApi("earth.terrarium.olympus:olympus-fabric-1.21.7:1.5.2")!!)
-        MinecraftVersions.VERSION_1_21_5 -> include(modApi("earth.terrarium.olympus:olympus-fabric-1.21.5:1.3.6")!!)
-        else -> {}
     }
 }
 

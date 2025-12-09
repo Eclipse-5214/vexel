@@ -1,6 +1,6 @@
 package xyz.meowing.vexel.events
 
-import xyz.meowing.knit.api.events.Event
+import xyz.meowing.vexel.events.api.Event
 
 abstract class GuiEvent : Event() {
     class Render : GuiEvent()

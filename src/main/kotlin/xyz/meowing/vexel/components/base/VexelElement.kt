@@ -2,8 +2,8 @@
 
 package xyz.meowing.vexel.components.base
 
-import xyz.meowing.knit.api.input.KnitMouse
-import xyz.meowing.knit.api.render.KnitResolution
+import dev.deftu.omnicore.api.client.input.OmniMouse
+import dev.deftu.omnicore.api.client.render.OmniResolution
 import xyz.meowing.vexel.Vexel.renderer
 import xyz.meowing.vexel.animations.AnimationManager
 import xyz.meowing.vexel.core.VexelWindow
@@ -59,7 +59,7 @@ abstract class VexelElement<T : VexelElement<T>>(
         }
 
     inner class Scaled {
-        val scaleFactor get() = KnitResolution.scaleFactor.toFloat()
+        val scaleFactor get() = OmniResolution.scaleFactor.toFloat()
 
         val left: Float get() = x / scaleFactor
         val top: Float get() = y / scaleFactor
@@ -115,8 +115,8 @@ abstract class VexelElement<T : VexelElement<T>>(
     open var ignoreFocus: Boolean = false
     open var requiresFocus: Boolean = false
 
-    val screenWidth: Int get() = KnitResolution.windowWidth
-    val screenHeight: Int get() = KnitResolution.windowHeight
+    val screenWidth: Int get() = OmniResolution.windowWidth
+    val screenHeight: Int get() = OmniResolution.windowHeight
 
     var parent: Any? = null
         set(value) {
@@ -197,7 +197,7 @@ abstract class VexelElement<T : VexelElement<T>>(
     fun drawAsRoot() {
         renderer.beginFrame(screenWidth.toFloat(), screenHeight.toFloat())
         renderer.push()
-        render(KnitMouse.Raw.x.toFloat(), KnitMouse.Raw.y.toFloat())
+        render(OmniMouse.rawX.toFloat(), OmniMouse.rawY.toFloat())
         AnimationManager.update()
         renderer.pop()
         renderer.endFrame()

@@ -19,8 +19,6 @@ Have questions? Join our [discord!](https://discord.gg/QHFWnydFXr)
 
 ### Vexel Versions
 
-![Maven Central Version](https://img.shields.io/maven-central/v/xyz.meowing/vexel-1.8.9-forge?label=Vexel%201.8.9%20Forge)
-
 ![Maven Central Version](https://img.shields.io/maven-central/v/xyz.meowing/vexel-1.20.1-fabric?label=Vexel%201.20.1%20Fabric)
 ![Maven Central Version](https://img.shields.io/maven-central/v/xyz.meowing/vexel-1.20.1-forge?label=Vexel%201.20.1%20Forge)
 

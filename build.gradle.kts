@@ -17,7 +17,6 @@ apply(rootProject.file("secrets.gradle.kts"))
 
 toolkitMultiversion.moveBuildsToRootProject.set(true)
 toolkitLoomHelper.useMixinRefMap(modData.id)
-repositories.maven("https://maven.teamresourceful.com/repository/maven-public/")
 
 dependencies {
     with(libs.textile.get()) { modImplementation("${this.group}:${this.name}-$mcData:${this.version}") }
@@ -59,7 +58,7 @@ afterEvaluate {
                 pom {
                     name.set("Vexel")
                     description.set("A simple declarative rendering library built with lwjgl's NanoVG Renderer")
-                    url.set("https://github.com/meowing-xyz/vexel")
+                    url.set("https://github.com/Eclipse-5214/vexel")
                     licenses {
                         license {
                             name.set("GNU General Public License v3.0")
@@ -67,6 +66,10 @@ afterEvaluate {
                         }
                     }
                     developers {
+                        developer {
+                            id.set("eclipse-5214")
+                            name.set("NEXD")
+                        }
                         developer {
                             id.set("aurielyn")
                             name.set("Aurielyn")
@@ -77,7 +80,7 @@ afterEvaluate {
                         }
                     }
                     scm {
-                        url.set("https://github.com/meowing-xyz/vexel")
+                        url.set("https://github.com/Eclipse-5214/vexel")
                     }
                 }
             }

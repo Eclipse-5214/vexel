@@ -1,5 +1,11 @@
 package co.stellarskys.vexel.api.style
 
+import com.google.gson.*
+import com.google.gson.annotations.JsonAdapter
+import java.awt.Color.HSBtoRGB
+import java.awt.Color.RGBtoHSB
+import java.lang.reflect.Type
+
 /*
  * BSD 3-Clause License
  *
@@ -37,15 +43,11 @@ package co.stellarskys.vexel.api.style
  * Modifications and additions:
  * Licensed under GPL-3.0
  */
+
+@JsonAdapter(Color.ColorSerializer::class)
 class Color(hue: Float, saturation: Float, brightness: Float, alpha: Float = 1f) {
     constructor(hsb: FloatArray, alpha: Float = 1f) : this(hsb[0], hsb[1], hsb[2], alpha)
-    constructor(r: Int, g: Int, b: Int, alpha: Float = 1f) : this(
-        java.awt.Color.RGBtoHSB(
-            r,
-            g,
-            b,
-            FloatArray(size = 3)
-        ), alpha)
+    constructor(r: Int, g: Int, b: Int, alpha: Float = 1f) : this(RGBtoHSB(r, g, b, FloatArray(size = 3)), alpha)
     constructor(rgba: Int) : this(rgba.red, rgba.green, rgba.blue, alpha = rgba.alpha / 255f)
     constructor(rgba: Int, alpha: Float) : this(rgba.red, rgba.green, rgba.blue, alpha)
     constructor(hex: String) : this(
@@ -97,7 +99,7 @@ class Color(hue: Float, saturation: Float, brightness: Float, alpha: Float = 1f)
         get() {
             if (needsUpdate) {
                 field =
-                    (java.awt.Color.HSBtoRGB(hue, saturation, brightness) and 0X00FFFFFF) or ((this.alphaFloat * 255).toInt() shl 24)
+                    (HSBtoRGB(hue, saturation, brightness) and 0X00FFFFFF) or ((this.alphaFloat * 255).toInt() shl 24)
                 needsUpdate = false
             }
             return field
@@ -124,7 +126,7 @@ class Color(hue: Float, saturation: Float, brightness: Float, alpha: Float = 1f)
      * Main use is to prevent rendering when the color is invisible.
      */
     inline val isTransparent: Boolean
-        get() = this.alphaFloat == 0f
+        get() = this.alpha == 0
 
     override fun toString(): String = "Color(red=$red,green=$green,blue=$blue,alpha=$alpha)"
 
@@ -145,6 +147,16 @@ class Color(hue: Float, saturation: Float, brightness: Float, alpha: Float = 1f)
     }
 
     fun copy(): Color = Color(this.rgba)
+
+    private class ColorSerializer : JsonDeserializer<Color>, JsonSerializer<Color> {
+        override fun deserialize(json: JsonElement, type: Type, context: JsonDeserializationContext?): Color {
+            return Color(json.asString.drop(1))
+        }
+
+        override fun serialize(color: Color, type: Type, context: JsonSerializationContext?): JsonElement {
+            return JsonPrimitive("#${color.hex()}")
+        }
+    }
 
     companion object {
         inline val Int.red get() = this shr 16 and 0xFF

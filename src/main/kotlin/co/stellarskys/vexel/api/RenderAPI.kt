@@ -13,6 +13,9 @@ interface RenderAPI {
     fun push()
     fun pop()
 
+    fun setTransform(m00: Float, m01: Float, m10: Float, m11: Float, m20: Float, m21: Float) {}
+    fun resetTransform() {}
+
     fun scale(x: Float, y: Float)
     fun translate(x: Float, y: Float)
     fun rotate(amount: Float)

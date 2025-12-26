@@ -79,6 +79,17 @@ object NVGRenderer : RenderAPI {
 
     override fun globalAlpha(amount: Float) = nvgGlobalAlpha(vg, amount.coerceIn(0f, 1f))
 
+    override fun setTransform(m00: Float, m01: Float, m10: Float, m11: Float, m20: Float, m21: Float) {
+        if (!drawing) return
+        nvgTransform(vg, m00, m01, m10, m11, m20, m21)
+    }
+
+    // Optional but very helpful: resets the matrix to identity
+    override fun resetTransform() {
+        if (!drawing) return
+        nvgResetTransform(vg)
+    }
+
     override fun pushScissor(x: Float, y: Float, w: Float, h: Float) {
         scissor = Scissor(scissor, x, y, w + x, h + y)
         scissor?.applyScissor()

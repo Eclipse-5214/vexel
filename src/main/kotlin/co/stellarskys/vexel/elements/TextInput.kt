@@ -410,7 +410,7 @@ class TextInput(
 
     fun copySelection() {
         if (!hasSelection) return
-        client.keyboard.clipboard = getSelectedText()
+        client.keyboardHandler.clipboard = getSelectedText()
     }
 
     fun cutSelection() {
@@ -420,7 +420,7 @@ class TextInput(
     }
 
     fun paste() {
-        val clipboardText = client.keyboard.clipboard
+        val clipboardText = client.keyboardHandler.clipboard
         if (clipboardText.isNotEmpty()) {
             insertText(clipboardText)
         }

@@ -10,51 +10,17 @@ import dev.deftu.omnicore.api.client.screen.KeyPressEvent
 import dev.deftu.omnicore.api.client.screen.OmniScreen
 import dev.deftu.omnicore.api.scheduling.TickSchedulers
 import dev.deftu.textile.Text
-import co.stellarskys.vexel.Vexel.eventBus
-import co.stellarskys.vexel.events.GuiEvent
-import co.stellarskys.vexel.events.api.EventCall
+import co.stellarskys.vexel.api.nvg.NVGSpecialRenderer
+import dev.deftu.omnicore.api.client.client
+import dev.deftu.omnicore.api.client.screen.closeScreen
 
 abstract class VexelScreen(screenName: String = "Vexel-Screen") : OmniScreen(Text.literal(screenName)) {
     private var lastX: Double = -1.0
     private var lastY: Double = -1.0
 
-    var renderEvent: EventCall? = null
-
-    var initialized = false
-        private set
-    var hasInitialized = false
-        private set
-
     val window = VexelWindow()
-
-    open fun afterInitialization() {}
-
-    final override fun onInitialize(width: Int, height: Int) {
-        if (!hasInitialized) {
-            hasInitialized = true
-            initialized = true
-
-            afterInitialization()
-
-            renderEvent = eventBus.register<GuiEvent.Render> {
-                if (client?.currentScreen == this) {
-                    window.draw()
-                    onRenderGui()
-                }
-            }
-
-        } else {
-            initialized = true
-        }
-
-        super.onInitialize(width, height)
-    }
-
     override fun onScreenClose() {
         window.cleanup()
-        renderEvent?.unregister()
-        renderEvent = null
-        hasInitialized = false
 
         super.onScreenClose()
     }
@@ -85,14 +51,9 @@ abstract class VexelScreen(screenName: String = "Vexel-Screen") : OmniScreen(Tex
         event: KeyPressEvent
     ): Boolean {
         val handled = window.charType(key.code, scanCode, typedChar)
-        if (!handled && key.code == OmniKeys.KEY_ESCAPE.code) close()
+        if (!handled && key.code == OmniKeys.KEY_ESCAPE.code) closeScreen()
         return handled
     }
-
-    /**
-     * Called after the elements and animations render.
-     */
-    open fun onRenderGui() {}
 
     override fun onRender(ctx: OmniRenderingContext, mouseX: Int, mouseY: Int, tickDelta: Float) {
         val newX = OmniMouse.rawX
@@ -103,12 +64,17 @@ abstract class VexelScreen(screenName: String = "Vexel-Screen") : OmniScreen(Tex
             lastY = newY
         }
 
+        val context = ctx.graphics ?: return
+        NVGSpecialRenderer.draw(context, 0, 0, context.guiWidth(), context.guiHeight()) {
+            window.draw()
+        }
+
         super.onRender(ctx, mouseX, mouseY, tickDelta)
     }
 
     fun display() {
         TickSchedulers.client.post {
-            client?.setScreen(this@VexelScreen)
+            client.setScreen(this@VexelScreen)
         }
     }
 }

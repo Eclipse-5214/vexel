@@ -25,46 +25,13 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.round
 
-//#if MC >= 1.21.9
-//$$ import org.lwjgl.opengl.GL13
-//#endif
-
 /*
+ * Adapted from NVGRenderer.kt in OdinFabric
+ * https://github.com/odtheking/OdinFabric
+ *
  * BSD 3-Clause License
- *
- * Copyright (c) 2023-2025, odtheking
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- * 3. Neither the name of the copyright holder nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * Portions of this file are derived from OdinFabric
- * Copyright (c) odtheking
- * Licensed under BSD-3-Clause
- *
- * Modifications and additions:
- * Licensed under GPL-3.0
+ * Copyright (c) 2025, odtheking
+ * See full license at: https://opensource.org/licenses/BSD-3-Clause
  */
 object NVGRenderer : RenderAPI {
     private val nvgPaint = NVGPaint.malloc()
@@ -85,10 +52,10 @@ object NVGRenderer : RenderAPI {
         require(vg != -1L) { "Failed to initialize NanoVG" }
     }
 
-    override fun beginFrame(width: Float, height: Float) {
+    override fun beginFrame(width: Float, height: Float, devicePixelRatio: Float) {
         if (drawing) throw IllegalStateException("[NVGRenderer] Already drawing, but called beginFrame")
 
-        nvgBeginFrame(vg, width, height, 1f)
+        nvgBeginFrame(vg, width, height, devicePixelRatio)
         nvgTextAlign(vg, NVG_ALIGN_LEFT or NVG_ALIGN_TOP)
         drawing = true
     }
@@ -504,6 +471,18 @@ object NVGRenderer : RenderAPI {
                 nvgScissor(vg, x, y, width, height)
             }
         }
+    }
+
+    fun drawMasked(x: Float, y: Float, w: Float, h: Float, radius: Float, block: () -> Unit) {
+        push()
+        nvgBeginPath(vg)
+        nvgRoundedRect(vg, x, y, w, h, radius)
+        nvgRGBA(255.toByte(), 255.toByte(), 255.toByte(), 255.toByte(), nvgColor)
+        nvgFillColor(vg, nvgColor)
+        nvgFill(vg)
+        nvgGlobalCompositeOperation(vg, NVG_SOURCE_IN)
+        block()
+        pop()
     }
 
     private data class NVGImage(var count: Int, val nvg: Int)

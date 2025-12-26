@@ -7,7 +7,7 @@ import co.stellarskys.vexel.api.style.Image
 import java.awt.Color
 
 interface RenderAPI {
-    fun beginFrame(width: Float, height: Float)
+    fun beginFrame(width: Float, height: Float, devicePixelRatio: Float = 1f)
     fun endFrame()
 
     fun push()

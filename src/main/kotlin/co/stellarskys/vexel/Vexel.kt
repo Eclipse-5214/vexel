@@ -13,7 +13,13 @@ object Vexel: ClientModInitializer {
     private var _renderer: RenderAPI? = null
 
     @JvmStatic
-    val defaultFont = Font("Default", client.resourceManager.getResource(ResourceLocation.fromNamespaceAndPath("vexel", "font.ttf")).get().open())
+    val defaultFont by lazy {
+        val resource = client.resourceManager
+            .getResource(ResourceLocation.fromNamespaceAndPath("vexel", "font.ttf"))
+            .orElseThrow { IllegalStateException("Could not find vexel:font.ttf") }
+
+        Font("Default", resource.open())
+    }
 
     @JvmStatic
     val renderer: RenderAPI

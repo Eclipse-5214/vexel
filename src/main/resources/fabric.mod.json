@@ -16,6 +16,14 @@
 	"license": "GPL-3.0-or-later",
 	"icon": "assets/vexel/icon.png",
 	"environment": "*",
+	"entrypoints": {
+		"client": [
+			{
+				"value": "co.stellarskys.vexel.Vexel",
+				"adapter" : "kotlin"
+			}
+		]
+	},
 	"mixins": [
 		"mixins.vexel-continued.json"
 	],

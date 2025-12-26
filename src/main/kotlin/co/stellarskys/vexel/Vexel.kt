@@ -5,14 +5,11 @@ import co.stellarskys.vexel.api.RenderAPI
 import co.stellarskys.vexel.api.nvg.NVGRenderer
 import co.stellarskys.vexel.api.nvg.NVGSpecialRenderer
 import co.stellarskys.vexel.api.style.Font
+import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.rendering.v1.SpecialGuiElementRegistry
 import net.minecraft.resources.ResourceLocation
 
-object Vexel {
-    init {
-        SpecialGuiElementRegistry.register { NVGSpecialRenderer(it.vertexConsumers()) }
-    }
-
+object Vexel: ClientModInitializer {
     private var _renderer: RenderAPI? = null
 
     @JvmStatic
@@ -24,5 +21,9 @@ object Vexel {
 
     fun init(renderer: RenderAPI) {
         _renderer = renderer
+    }
+
+    override fun onInitializeClient() {
+        SpecialGuiElementRegistry.register { NVGSpecialRenderer(it.vertexConsumers()) }
     }
 }

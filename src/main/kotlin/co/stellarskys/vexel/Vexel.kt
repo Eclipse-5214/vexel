@@ -23,7 +23,7 @@ object Vexel: ClientModInitializer {
 
     @JvmStatic
     val renderer: RenderAPI
-        get() = _renderer ?: DummyRenderer
+        get() = DummyRenderer // _renderer ?: DummyRenderer
 
     fun init(renderer: RenderAPI) {
         _renderer = renderer

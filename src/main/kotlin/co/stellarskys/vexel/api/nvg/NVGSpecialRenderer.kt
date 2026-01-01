@@ -25,6 +25,8 @@ import org.joml.Matrix3x2f
  */
 class NVGSpecialRenderer(vertexConsumers: MultiBufferSource.BufferSource) : PictureInPictureRenderer<NVGSpecialRenderer.NVGRenderState>(vertexConsumers) {
     override fun renderToTexture(state: NVGRenderState, poseStack: PoseStack) {
+        if (Vexel.renderer === DummyRenderer) return
+
         val colorTex = RenderSystem.outputColorTextureOverride ?: return
         val bufferManager = (RenderSystem.getDevice() as? GlDevice)?.directStateAccess() ?: return
         val glDepthTex = (RenderSystem.outputDepthTextureOverride?.texture() as? GlTexture) ?: return

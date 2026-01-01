@@ -2,7 +2,7 @@ package co.stellarskys.vexel
 
 import dev.deftu.omnicore.api.client.client
 import co.stellarskys.vexel.api.RenderAPI
-import co.stellarskys.vexel.api.nvg.NVGRenderer
+import co.stellarskys.vexel.api.nvg.DummyRenderer
 import co.stellarskys.vexel.api.nvg.NVGSpecialRenderer
 import co.stellarskys.vexel.api.style.Font
 import net.fabricmc.api.ClientModInitializer
@@ -23,7 +23,7 @@ object Vexel: ClientModInitializer {
 
     @JvmStatic
     val renderer: RenderAPI
-        get() = _renderer ?: NVGRenderer
+        get() = _renderer ?: DummyRenderer
 
     fun init(renderer: RenderAPI) {
         _renderer = renderer

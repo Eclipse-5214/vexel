@@ -23,13 +23,13 @@ object Vexel: ClientModInitializer {
 
     @JvmStatic
     val renderer: RenderAPI
-        get() = DummyRenderer // _renderer ?: DummyRenderer
+        get() = DummyRenderer //_renderer ?: DummyRenderer
 
     fun init(renderer: RenderAPI) {
         _renderer = renderer
     }
 
     override fun onInitializeClient() {
-        SpecialGuiElementRegistry.register { NVGSpecialRenderer(it.vertexConsumers()) }
+        //SpecialGuiElementRegistry.register { NVGSpecialRenderer(it.vertexConsumers()) }
     }
 }

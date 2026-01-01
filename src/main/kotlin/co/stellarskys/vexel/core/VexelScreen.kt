@@ -65,9 +65,12 @@ abstract class VexelScreen(screenName: String = "Vexel-Screen") : OmniScreen(Tex
         }
 
         val context = ctx.graphics ?: return
+
+        /*
         NVGSpecialRenderer.draw(context, 0, 0, context.guiWidth(), context.guiHeight()) {
             window.draw()
         }
+         */
 
         super.onRender(ctx, mouseX, mouseY, tickDelta)
     }
